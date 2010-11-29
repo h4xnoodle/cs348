@@ -1,0 +1,7 @@
+notes
+
+Install ZEND CE edition
+enable pdo_ibm ext
+new PDO("ibm:DRIVER={IBM DB2 ODBC DRIVER};DATABASE=<DB>;HOSTNAME=localhost;PORT=50000;PROTOCOL=TCPIP;", <USER>, <PASS>);
+
+Need new table(s) for billing shit

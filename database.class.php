@@ -19,43 +19,65 @@ class Database {
 	// Returns all results in array
 	public function query($query) {
 		$result = $this->handle->query($query);
-		return $result->fetchAll();
+		if( $result ) {
+			$result = $result->fetchAll();	
+			return $result;
+		}
+		return false;
 	}
 	
 	// Build an insert statement
 	public function insert( $table,$data,$where=false ) {
 		$q = "INSERT INTO ".$table."(";
-		for( $i = 0; $i < count($data)-1; $i++ ) {
-			$q .= key($data).",";
-			next($data);
+		$q .= key($data);
+		next($data);
+		while( list($k,$v) = each($data) ) {
+			$q .= ",".$k;
 		}
-		$q .= key($data).") VALUES(";
+		$q .= ") VALUES(";
 		reset($data);
-		for( $i = 0; $i < count($data)-1; $i++ ) {
-			$q .= "\"".current($data)."\",";
-			next($data);
+		$q .= "'".current($data)."'";
+		next($data);
+		while( list($k,$v) = each($data) ) {
+			$q .= ",'".$v."'";
 		}
-		$q .= "\"".current($data)."\")";
+		$q .= ")";
 		if( $where ) {
 			if ( $where['op'] == "" ) $where['op'] = "=";
-			$q .= " WHERE ".$where['field']." ".$where['op']." ".$where['value'];
+			$q .= " WHERE ".$where['field']." ".$where['op']." \"".$where['value']."\"";
 		}
-		echo $q;
+		
+		if( $this->handle->exec($q) === false ) {
+			return false;
+		}
+		return true;
 	}
 	
 	// Build update statement
 	public function update( $table,$data,$where=false ) {}
 	
 	// Delete
-	public function delete( $table,$where=false,$limit=1 ) {}
-	
-	
+	public function delete( $table,$where=false,$limit=1 ) {
+		$q = "DELETE FROM ".$table;
+		if( $where ) {
+			if ( $where['op'] == "" ) $where['op'] = "=";
+			$q .= " WHERE ".$where['field']." ".$where['op']." \"".$where['value']."\"";
+		}
+		$q .= " LIMIT ".$limit;
+		
+		try {
+			$this->handle->exec($q);
+		} catch( Exception $e ) {
+			die($e->getMessage());
+		}
+		
+		return true;
+	}
 }
-
 
 // test
 $db = new Database;
-//print_r($db->query("SELECT * FROM test"));
-$db->insert("test",array('name'=>'moocow','address'=>'123 false st.','test'=>'lolol'),false);
+print_r($db->query("SELECT * FROM test"));
+//$db->insert("test",array('name'=>'moocow','address'=>'123 false st.','test'=>'lolol'),array('op'=>'=','field'=>'pid','value'=>'bex'));
 
 ?>

@@ -54,7 +54,10 @@ class Database {
 	}
 	
 	// Build update statement
-	public function update( $table,$data,$where=false ) {}
+	public function update( $table,$data,$where=false ) {
+		if( !$where ) return false; // Must have 'where' clause
+	
+	}
 	
 	// Delete
 	public function delete( $table,$where=false,$limit=1 ) {
@@ -74,10 +77,4 @@ class Database {
 		return true;
 	}
 }
-
-// test
-$db = new Database;
-print_r($db->query("SELECT * FROM test"));
-//$db->insert("test",array('name'=>'moocow','address'=>'123 false st.','test'=>'lolol'),array('op'=>'=','field'=>'pid','value'=>'bex'));
-
 ?>

@@ -3,7 +3,7 @@
 // Treatment class
 // Creation of EDT records
 
-//require_once('../database.class.php');
+require_once('database.class.php');
 
 class Treatment {
 

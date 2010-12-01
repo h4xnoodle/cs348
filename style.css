@@ -85,6 +85,33 @@ div#body {
 			font-size:14px;
 			background-color:#eee;
 		}
+	
+	div#body form {
+		border:1px dashed #ccc;
+		margin:10px;
+		padding:0 10px 5px 10px;
+	}
+	div#body form label {
+		float:left;
+		font-size:12px;
+		min-width:250px;
+		text-align:right;
+		margin:3px 10px 0 0;
+	}
+	div#body form label:after {
+		content:":";
+	}
+	div#body form input,
+	div#body form select,
+	div#body form textarea{
+		min-width:250px;
+		margin:0 0 0 0px;
+		padding:5px;
+		font-family:Verdana, sans-serif;
+	}
+	div#body form textarea {
+		min-height:120px;
+	}
 
 div#footer {
 	font-family:Verdana,sans-serif;

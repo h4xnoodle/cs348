@@ -3,7 +3,7 @@
 // Admin class
 // Patient administration
 
-//require_once('../database.class.php');
+require_once('database.class.php');
 
 class Admin {
 	
@@ -17,10 +17,24 @@ class Admin {
 		}
 	}
 	
-	// Data entry
-	public function addPatient( $args ) {}
+	private function isPatient( $pname ) {
+		$q = "SELECT pid FROM Patients WHERE pname = '".$pname."'";
+		$result = $this->dbh->query($q);
+		if( $result ) return true;
+		return false;
+	}
 	
-	public function updatePatient( $args ) {}
+	// Data entry
+	public function addPatient( $args ) {
+		if( isPatient($args['pname']) ) return false;
+		
+	
+	}
+	
+	public function updatePatient( $args ) {
+		if( !isPatient($args['pname']) ) return false;
+		
+	}
 	
 	public function checkInPatient( $args ) {}
 	

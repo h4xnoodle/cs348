@@ -3,7 +3,7 @@
 // Billing class
 // Allows creation, update, etc of billing accounts of patients
 
-//require_once('../database.class.php');
+require_once('database.class.php');
 
 class Billing {
 

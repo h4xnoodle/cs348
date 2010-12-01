@@ -1,19 +1,6 @@
 <!-- Author: Rebecca Putinski 20271463 for CS348 -->
 
-<?php
-	function buildMenu() {
-		$items = array(
-					'admin'=>'Admin',
-					'treatment'=>'Treatment',
-					'billing'=>'Billing',
-					''=>'Home');
-		foreach( $items as $k=>$v ) {
-			echo $_SERVER['QUERY_STRING'] == $k ? "<li class='current'>" : "<li>";
-			echo "<a href='index.php?".$k."'>".$v."</a></li>\n";
-		}
-	}
-?>
-
+<?php include('common.php'); ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -65,9 +52,41 @@
 		
 		<a name="newEDT"></a>
 		<h2>Create an EDT Record for a Patient</h2>
+		<p>Select a patient from the dropdown box or enter their Patient ID number. The ID number (when non-zero) takes precedence if both fields are filled.</p>
+		<?php
+			$form = array(
+				'form_action'=>"newEDT",
+				'submit_text'=>"Create",
+				'_dropdown1'=>array('label'=>"Patient",'name'=>'pid_name', 
+									array(
+									'1'=>'Rebecca',
+									'2'=>'Someone Else'
+									)),
+				'pid_num'=>'Patient ID Num',
+				'dateperf'=>"Date Performed (YYYY-MM-DD)",
+				'activitytype'=>"Activity Type",
+				'enames'=>"Physician Names (sep. by comma)",
+				'_textbox1'=>array('label'=>"Description",'name'=>"description"),
+				'_textbox2'=>array('label'=>"Outcome",'name'=>"outcome"),
+				'duration'=>"Duration (eg 1.5 = 1:30hrs)",
+				'cost'=>"Cost $"
+				);
+			buildForm( $form );
+		?>
 		
 		<a name="getEDT"></a>
 		<h2>Retrieve EDT Records</h2>
+		<p>Supply a Patient name or ID and retrieve EDT records. Decide whether for all visits or just current/active visit.</p>
+		<?php
+			$form = array(
+				'form_action'=>"getEDT",
+				'submit_text'=>"Retrieve",
+				'_dropdown1'=>array('label'=>"Patient",'name'=>'pid_name',array('1'=>"Moo",'2'=>"COWS")),
+				'pid_num'=>"Patient ID",
+				'_dropdown2'=>array('label'=>"Option",'name'=>"option",array('all'=>"All visits",'current'=>"Current Visit"))
+				);
+			buildForm( $form );
+		?>
 	
 	<?php break; case 'billing': ?>
 	

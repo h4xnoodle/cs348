@@ -1,17 +1,27 @@
 <?php
 
 // TESTS
-include('treatment.class.php');
-include('admin.class.php');
-include('billing.class.php');
-
 $results = array();
 $toRun = 'all';
 
 // Data for test purposes
 function populateTreatment() {}
 function populateBilling() {}
-function populateAdmin() {}
+function populateAdmin() {
+	
+	// Persistent Test case for a_patientNot
+	$data = array(
+		'pname'=>'PTEST1',
+		'dob'=>'1989-01-19',
+		'address'=>'123 Fake St.',
+		'contact_phone'=>'6131337667',
+		'contact_email'=>'rjputins@uwaterloo.ca',
+		'emerg_name'=>'Sister',
+		'emerg_phone'=>'1337133756'
+		);
+	$a = new Admin;
+	$a->addPatient($data);
+}
 
 // New EDT record, Get EDT records
 // At least one patient, with PID = 1
@@ -36,6 +46,9 @@ function runTreatment() {
 	// Get
 	$lala = $t->getEDTRecords( 1 );
 	$results['t_getEDTs'] = ( $lala ? true : false );
+	
+	$db = new Database;
+	$db->delete('EDTRecords',array('field'=>'pid','value'=>1),100);
 }
 
 function runBilling() {
@@ -52,35 +65,40 @@ function runBilling() {
 
 function runAdmin() {
 	global $results;
-	$results['a_newPatient'] = false;
+	$a = new Admin;
+	populateAdmin();
+	// New patient
+	$data = array(
+			'pname'=>'TEST1',
+			'dob'=>'1989-01-01',
+			'address'=>'123 Fake St.',
+			'contact_phone'=>'5197817372',
+			'contact_email'=>'h4xnoodle@gmail.com',
+			'emerg_name'=>'Tori',
+			'emerg_phone'=>'6138367372'
+			);
+	$results['a_newPatient'] = ($a->addPatient( $data ) ? true : false);
+	
+	$attempt = array('pname'=>'PTEST1');
+	$results['a_newPatientNot'] = (!$a->addPatient($attempt) ? true : false);
+	
 	$results['a_updatePatient'] = false;
 	$results['a_registerVisit'] = false;
 	$results['a_checkOutPatient'] = false;
 	$results['a_datePatients'] = false;
 	$results['a_patientVisits'] = false;
 	$results['a_physicianReleasedAdmitted'] = false;
+	
+	$db = new Database;
+	$db->delete('Patients',array('field'=>'pname','value'=>'TEST1'),1);
 }
 
-switch( $toRun ) {
-	case 'all' :
-		runTreatment();
-		runBilling();
-		runAdmin();
-		break;
-	case 'treatment' :
-		runTreatment();
-		break;
-	case 'patient' :
-		runAdmin();
-		break;
-	case 'billing' :
-		runBilling();
-		break;
-	default:;
-}
+runTreatment();
+runBilling();
+runAdmin();
 
 // Output
-echo "<h1>Tests</h1><p>Running teeesstttsss</p>";
+echo "<h2>Tests</h2><p>Running teeesstttsss</p>";
 echo "<table>";
 echo "<tr><th>Name</th><th>Result</th></tr>";
 foreach( $results as $n=>$r ) {

@@ -12,17 +12,26 @@ function buildMenu() {
 	}
 }
 
+function buildSubMenu( $items ) {
+	if( $items ) {
+		echo "<p><ul class='submenu'>";
+		foreach( $items as $k=>$v )
+			echo "<li><a href='#".$k."'>".$v."</a></li>";
+		echo "</ul></p><hr style='clear:both;'>";
+	}
+}
+
 function buildForm( $args ) {
 	$form_action = array_shift($args);
 	$submit_text = array_shift($args);
 	
-	echo "<form method='post' action='process.php'>";
-	echo "<input type='hidden' name='action' value='".$form_action."'>";
+	echo "<form method='post' action='process.php'>\n";
+	echo "<input type='hidden' name='form_action' value='".$form_action."'>\n";
 
 	foreach( $args as $t=>$p ) {
 	
 		// lol im so awesome
-		$type = substr($t,0,strlen($t)-1);
+		$type = substr($t,0,-1);
 	
 		// Dropdown box
 		if( $type == "_dropdown" ) {
@@ -30,25 +39,27 @@ function buildForm( $args ) {
 			$label = array_shift($p);
 			$name = array_shift($p);
 			$options = array_shift($p);
-			echo "<p><label for='".$name."'>".$label."</label><select id='".$name."' name='".$name."'>";
-			foreach( $options as $k=>$v )
-				echo "<option value='".$k."'>".$v."</option>";
-			echo "</select>";
+			
+			echo "<p><label for='".$name."'>".$label."</label><select id='".$name."' name='".$name."'>\n";
+			foreach( $options as $k=>$v ) {
+				echo "\t<option value='".$k."'>".$v."</option>\n";
+			}
+			echo "</select></p>\n";
 		
 		// Textarea
 		} elseif( $type == "_textbox" ) {
 		
 			echo "<p><label for='".$p['name']."'>".$p['label']."</label>";
-			echo "<textarea id='".$p['name']."' name='".$p['name']."'></textarea>";
+			echo "<textarea id='".$p['name']."' name='".$p['name']."'></textarea></p>\n";
 		
 		// Normal text fields
 		} else {
 		
-			echo "<p><label for='".$t."'>".$p."</label><input type='text' id='".$t."' name='".$t."'></p>";
+			echo "<p><label for='".$t."'>".$p."</label><input type='text' id='".$t."' name='".$t."'></p>\n";
 			
 		}
 	}
 	
-	echo "<p style='text-align:right;margin:0;'><input type='submit' name='submit' value='".$submit_text."'></p>";
+	echo "<p style='text-align:right;margin:0;'><input type='submit' name='submit' value='".$submit_text."'></p>\n";
 	echo "</form>";
 }

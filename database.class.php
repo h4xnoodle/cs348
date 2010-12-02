@@ -18,12 +18,27 @@ class Database {
 	
 	// Returns all results in array
 	public function query($query) {
+		$results = array();
 		$result = $this->handle->query($query);
 		if( $result ) {
-			$result = $result->fetchAll();	
-			return $result;
+			$result = $result->fetchAll();
+			// Strip numeric indices and change to lower case
+			foreach( $result as $r ) {
+				$temp = array();
+				foreach( $r as $k=>$v ) {
+					if( !is_numeric($k) ) {
+						$temp[strtolower($k)] = $v;
+					}
+				}
+				$results[] = $temp;
+			}
 		}
-		return false;
+		return $results;
+	}
+	
+	// Really only for UDTInsert in Admin
+	public function directInsert( $query ) {
+		return !($this->handle->exec( $query ) === false);
 	}
 	
 	// Build an insert statement
@@ -43,14 +58,10 @@ class Database {
 		}
 		$q .= ")";
 		if( $where ) {
-			if ( $where['op'] == "" ) $where['op'] = "=";
+			if ( !array_key_exists('op',$where) ) $where['op'] = "=";
 			$q .= " WHERE ".$where['field']." ".$where['op']." \"".$where['value']."\"";
 		}
-		
-		if( $this->handle->exec($q) === false ) {
-			return false;
-		}
-		return true;
+		return !($this->handle->exec($q) === false);
 	}
 	
 	// Build update statement
@@ -63,18 +74,11 @@ class Database {
 	public function delete( $table,$where=false,$limit=1 ) {
 		$q = "DELETE FROM ".$table;
 		if( $where ) {
-			if ( $where['op'] == "" ) $where['op'] = "=";
-			$q .= " WHERE ".$where['field']." ".$where['op']." \"".$where['value']."\"";
+			if ( !array_key_exists('op',$where) ) $where['op'] = "=";
+			$q .= " WHERE ".$where['field']." ".$where['op']." '".$where['value']."'";
 		}
 		$q .= " LIMIT ".$limit;
-		
-		try {
-			$this->handle->exec($q);
-		} catch( Exception $e ) {
-			die($e->getMessage());
-		}
-		
-		return true;
+		return ($this->handle->exec($q) !== false);
 	}
 }
 ?>

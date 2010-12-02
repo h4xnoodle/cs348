@@ -68,6 +68,15 @@ div#body {
 		line-height:19px;
 		color:#333;
 	}
+		div#body p.notice {
+			padding:5px;
+			background:#F2D65E;
+			border:1px solid #F1B93B;
+			color:#806506;
+		}
+			div#body p.notice:before {
+				content:"Note: ";
+			}
 	div#body ul.submenu {
 		list-style:none;
 		margin:0; padding:0;
@@ -87,7 +96,7 @@ div#body {
 		}
 	
 	div#body form {
-		border:1px dashed #ccc;
+		border:1px dashed #ddd;
 		margin:10px;
 		padding:0 10px 5px 10px;
 	}

@@ -215,10 +215,6 @@ switch( key($_GET) ) {
 			buildForm($form);
 		?>
 	
-	<?php break; case 'tests' : 
-		include('tests.php');
-		?>
-	
 	<?php break; default: 
 		$items = array(
 				'readme'=>"Read Me",
@@ -234,7 +230,7 @@ switch( key($_GET) ) {
 		<h2>Assumptions</h2>
 		<p>DB: cs348, Username: cs348, password cs348.</p>
 		<h2>Perform Tests</h2>
-		<p><a href="index.php?tests">HERE</a></p>
+		<?php include('tests.php'); ?>
 
 <?php 
 } 

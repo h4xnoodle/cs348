@@ -42,8 +42,23 @@ class Billing {
 	
 	public function updateBillingAccount( $data ) {}
 
-	public function receivePayment( $data ) {}
+	public function receivePayment( $data ) {
+		if( !billingAccountExit($data['pid']) ) return false;
+		
+	
+	}
 	
 }
 
 ?>
+
+CREATE TABLE BillingAccounts (
+	pid INT NOT NULL UNIQUE,
+	balance DECIMAL(10,2) DEFAULT 0,
+	
+	FOREIGN KEY(pid) REFERENCES Patients,
+	PRIMARY KEY(pid),
+	CONSTRAINT nonNeg
+		CHECK(balance > 0)
+);
+	

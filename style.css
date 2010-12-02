@@ -77,6 +77,22 @@ div#body {
 			div#body p.notice:before {
 				content:"Note: ";
 			}
+		div#body p.success {
+			padding:5px;
+			text-align:center;
+			background:#CAE8A2;
+			color:#235930;
+			border:1px solid #44AA55;
+		}
+		div#body p.error {
+			color:#A40802;
+			border:1px solid #C62626;
+			padding:5px;
+			background:#DC7066;
+		}
+			div#body p.error:before {
+				content:"Error: ";
+			}
 	div#body ul.submenu {
 		list-style:none;
 		margin:0; padding:0;

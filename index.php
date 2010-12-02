@@ -5,33 +5,14 @@ include('common.php');
 include('treatment.class.php');
 include('admin.class.php');
 include('billing.class.php');
-?>
+include('header.php');
 
-<!DOCTYPE html>
-<html>
-<head>
-	<title>Hospital Management System</title>
-	<link rel="stylesheet" href="style.css" type="text/css">
-</head>
-<body>
-
-<div id="wrap">
-	<h1>Hospital Management System</h1>
-	<div id="menu">
-		<ul>
-<?php buildMenu(); ?>
-		</ul>
-	</div>
-	<hr>
-	<div id="body">
-
-<?php 
-switch($_SERVER['QUERY_STRING']) { 
+switch( key($_GET) ) { 
 	case 'admin': 
 		$items = array(
 				'addPatient'=>"Add a Patient",
 				'updatePatient'=>"Update Patient",
-				'get'=>"Get Patient Info"
+				'getPatientInfo'=>"Get Patient Info"
 				);
 		buildSubMenu( $items );
 		?>
@@ -118,7 +99,7 @@ switch($_SERVER['QUERY_STRING']) {
 				'form_action'=>'newEDT',
 				'submit_text'=>'Create',
 				'_dropdown1'=>array('label'=>'Patient','name'=>'pid_name', $currentPatients),
-				'pid_num'=>'Patient ID Num',
+				'pid_num'=>array('label'=>'Patient ID Num','value'=>'0'),
 				'dateperf'=>'Date Performed (YYYY-MM-DD)',
 				'_dropdown2'=>array('label'=>'Activity Type','name'=>'activitytype',$activitytypes),
 				'enames'=>'Physician Names (sep. by comma)',
@@ -140,8 +121,8 @@ switch($_SERVER['QUERY_STRING']) {
 				'form_action'=>'getEDT',
 				'submit_text'=>'Retrieve',
 				'_dropdown1'=>array('label'=>'Patient','name'=>'pid_name',$allPatients),
-				'pid_num'=>'Patient ID',
-				'_dropdown2'=>array('label'=>'Option','name'=>'option',array('all'=>'All visits','current'=>'Current Visit Only'))
+				'pid_num'=>array('label'=>'Patient ID','value'=>0),
+				'_dropdown2'=>array('label'=>'Option','name'=>'option',array('0'=>'All visits','1'=>'Current Visit Only'))
 				);
 			buildForm( $form );
 		?>
@@ -170,9 +151,7 @@ switch($_SERVER['QUERY_STRING']) {
 		<h2>Perform Tests</h2>
 		<p><a href="index.php?tests">HERE</a></p>
 
-<?php } ?>
-	</div>
-	<div id="footer">CS348 Project P2 - Rebecca Putinski 20271463</div>
-</div>
-</body>
-</html>
+<?php 
+} 
+include('footer.php');
+?>

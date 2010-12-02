@@ -19,6 +19,22 @@ function buildSubMenu( $items ) {
 			echo "<li><a href='#".$k."'>".$v."</a></li>";
 		echo "</ul></p><hr style='clear:both;'>";
 	}
+	successMsg();
+}
+
+function successMsg() {
+	if( array_key_exists('success',$_GET) ) {
+		switch( $_GET['success'] ) {
+			case 't':
+				echo "<p class='success'>Treatment"; break;
+			case 'a':
+				echo "<p class='success'>Administration"; break;
+			case 'b':
+				echo "<p class='success'>Billing"; break;
+			default:;
+		}
+		echo " operation completed successfully!</p>";
+	}
 }
 
 function buildForm( $args ) {
@@ -54,9 +70,10 @@ function buildForm( $args ) {
 		
 		// Normal text fields
 		} else {
-		
-			echo "<p><label for='".$t."'>".$p."</label><input type='text' id='".$t."' name='".$t."'></p>\n";
-			
+			if( is_array($p) )
+				echo "<p><label for='".$t."'>".$p['label']."</label><input type='text' id='".$t."' value='".$p['value']."' name='".$t."'></p>\n";
+			else
+				echo "<p><label for='".$t."'>".$p."</label><input type='text' id='".$t."' name='".$t."'></p>\n";
 		}
 	}
 	

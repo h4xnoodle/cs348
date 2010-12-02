@@ -61,6 +61,7 @@ class Database {
 			if ( !array_key_exists('op',$where) ) $where['op'] = "=";
 			$q .= " WHERE ".$where['field']." ".$where['op']." \"".$where['value']."\"";
 		}
+		echo $q;
 		return !($this->handle->exec($q) === false);
 	}
 	

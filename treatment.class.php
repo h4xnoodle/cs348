@@ -18,7 +18,7 @@ class Treatment {
 	}
 	
 	private function isPatient( $pid ) {
-		$q = "SELECT pid FROM Patients WHERE pid = ".$pid;
+		$q = "SELECT pname FROM Patients WHERE pid = ".$pid;
 		$result = $this->dbh->query($q);
 		if( $result ) return true;
 		return false;

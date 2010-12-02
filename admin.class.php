@@ -151,7 +151,7 @@ class Admin {
 	
 	public function getPatientVisits( $pid ) {}
 	
-	public function getPhysiciansPatients( $eid ) {}
+	public function getPhysiciansPatients( $ename ) {}
 	
 	// Display functions
 	public function displayAdmittedPatients( $data ) {}

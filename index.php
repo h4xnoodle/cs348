@@ -19,7 +19,6 @@ switch( key($_GET) ) {
 		?>
 		<h2>Administration Actions</h2>
 		<p>Here an administrator can manage patients, and check patients in and out of the hospital.</p>
-		
 		<a name="addPatient"></a>
 		<h2>Add a Patient</h2>
 		<?php 
@@ -36,11 +35,25 @@ switch( key($_GET) ) {
 					);
 			buildForm( $form );
 		?>
-		
 		<a name="updatePatient"></a>
 		<h2>Update a Patient</h2>
-		<p>More stuff!</p>
-		
+		<?php 
+			$a = new Admin;
+			$allPatients = $a->getAllPatients();
+			if( !$allPatients ) echo "<p class='notice'>There are no patient files! Please create one.</p>";
+			$form = array(
+					'form_action'=>'updatePatient',
+					'submit_text'=>'Update Patient',
+					'_dropdown1'=>array('label'=>'Patient','name'=>'pid',$allPatients),
+					'dob'=>"Date of Birth (YYYY-MM-DD)",
+					'address'=>"Address",
+					'contact_phone'=>"Contact Phone Number",
+					'contact_email'=>"Contact Email",
+					'emerg_name'=>"Emergency Contact Name",
+					'emerg_phone'=>"Emergency Contact Phone"
+					);
+			buildForm( $form );
+		?>	
 		<a name="checkInOut"></a>
 		<h2>Patient Check In/Out</h2>
 		<p>Check in:</p>

@@ -29,7 +29,7 @@ function checkFilled( $form ) {
 	return (!(bool)$count);
 }
 
-function removeMeta( $rm ) {
+function filterData( $rm ) {
 	while( list($k,$v) = each($rm) ) {
 		if( $k != 'form_action' && $k != 'submit' )
 			$result[$k] = $v;
@@ -46,20 +46,20 @@ function checkNumber( $field ) {
 	return true;
 }
 
+// Big assumption: $_POST only contains my form data, with 'form_action' and 'submit' as the 'meta' for the forms.
+// If this doesn't hold, it is likely this entire thing will break. FIX? extract function
 if( $_POST['submit'] ) {
-	switch( $_POST['form_action'] ) {
-	
+	$action = $_POST['form_action'];
+	$data = filterData($_POST);
+	switch( $action ) {
 		// EDT - Treatment
 		case 'newEDT':
-			if( !checkFilled($_POST) || 
-				!verifyDate($_POST['dateperf']) || 
-				!checkNumber($_POST['cost']) ||
-				!checkNumber($_POST['duration']) ||
-				!checkNumber($_POST['pid_num']) ) 
+			if( !checkFilled($data) || !verifyDate($data['dateperf']) || 
+				!checkNumber($data['cost']) || !checkNumber($data['duration']) ||
+				!checkNumber($data['pid_num']) ) 
 				break;
 			
-			$pid = ($_POST['pid_num'] ? $_POST['pid_num'] : $_POST['pid_name']);
-			$data = removeMeta($_POST);
+			$pid = ($data['pid_num'] ? $data['pid_num'] : $data['pid_name']);
 			array_shift($data); // pid_num
 			array_shift($data); // pid_name
 			$data['pid'] = $pid;
@@ -70,13 +70,11 @@ if( $_POST['submit'] ) {
 				$errors[] = "Failed to insert new EDT Record.";
 			break;
 		case 'getEDT':
-			if( !checkFilled($_POST) ||
-				!checkNumber($_POST['pid_num']) )
+			if( !checkFilled($data) || !checkNumber($data['pid_num']) )
 				break;
-			$pid = ($_POST['pid_num'] ? $_POST['pid_num'] : $_POST['pid_name']);
-			$data = removeMeta($_POST);
+			$pid = ($data['pid_num'] ? $data['pid_num'] : $data['pid_name']);
 			$t = new Treatment;
-			if( $t->getEDTRecords( $data, (bool)$_POST['option'] ) )
+			if( $t->getEDTRecords( $data, (bool)$data['option'] ) )
 				header('Location: index.php?treatment&success=t');
 			else
 				header('Location: index.php?treatment&success=tn');
@@ -84,10 +82,8 @@ if( $_POST['submit'] ) {
 			
 		// Admin
 		case 'addPatient':
-			if( !checkFilled($_POST) ||
-				!verifyDate($_POST['dob']) )
+			if( !checkFilled($data) || !verifyDate($data['dob']) )
 				break;
-			$data = removeMeta($_POST);
 			$a = new Admin;
 			if( $a->addPatient($data) )
 				header('Location: index.php?admin&success=a');
@@ -95,30 +91,38 @@ if( $_POST['submit'] ) {
 				$errors[] = "Failed to add a new patient.";
 			break;
 		case 'updatePatient':
-			
+			if( !checkFilled($data) || !verifyDate($data['dob']) )
+				break;
+			$a = new Admin;
+			if( $a->updatePatient($data) )
+				header('Location: index.php?admin&success=a');
+			else
+				$errors[] = "Failed to update patient.";
 			break;
 		case 'checkIn':
-			if( !checkFilled($_POST) ||
-				!verifyDate($_POST['indate']) ||
-				!checkNumber($_POST['pid']) ||
-				!checkNumber($_POST['eidin']) )
+			if( !checkFilled($data) || !verifyDate($data['indate']) ||
+				!checkNumber($data['pid']) || !checkNumber($data['eidin']) )
 				break;
-			$data = removeMeta($_POST);
 			$a = new Admin;
 			if( $a->checkInPatient( $data ) )
 				header('Location: index.php?admin&success=a');
 			else
 				$errors[] = "Failed to check in patient.";
 			break;
+		case 'getPatientAdmits':
+			if( !checkFilled($data) ) break;
+			$a = new Admin;
+			$results = $a->getPatientAdmits($data);
 			
-		// DO MORE STUFF HERE
+			break;
+		case 'getPatientsByPhys':
+		
+			break;
+		// DO MORE STUFF HERE ~~~~~~~~~~~~~~~~~~~~
 		case 'checkOut':
-			if( !checkFilled($_POST) ||
-				!verifyDate($_POST['outdate']) ||
-				!checkNumber($_POST['eidout']) ||
-				!checkNumber($_POST['pid']) )
+			if( !checkFilled($data) || !verifyDate($data['outdate']) ||
+				!checkNumber($data['eidout']) || !checkNumber($data['pid']) )
 				break;
-			$data = removeMeta($_POST);
 			$a = new Admin;
 			if( $a->checkOutPatient( $data ) )
 				header('Location: index.php?admin&success=a');
@@ -126,6 +130,8 @@ if( $_POST['submit'] ) {
 				$errors[] = "Failed to check out patient.";
 			break;
 			
+			
+		
 		// Billing
 		
 		
@@ -138,5 +144,4 @@ if( $_POST['submit'] ) {
 		echo "<p class='error'>".$e."</p>";
 	include ('footer.php');
 }
-unset($_POST);
 ?>

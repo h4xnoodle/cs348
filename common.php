@@ -49,11 +49,11 @@ function buildForm( $args ) {
 
 	foreach( $args as $t=>$p ) {
 	
-		// lol im so awesome
-		$type = substr($t,0,-1);
+		// Since we can't have duplicate keys, _<type><int> is how dropdowns/textareas are labeled. Here, we get the <type> part
+		$type = substr($t,1,-1);
 	
 		// Dropdown box
-		if( $type == "_dropdown" ) {
+		if( $type == "dropdown" ) {
 		
 			$label = array_shift($p);
 			$name = array_shift($p);
@@ -66,7 +66,7 @@ function buildForm( $args ) {
 			echo "</select></p>\n";
 		
 		// Textarea
-		} elseif( $type == "_textbox" ) {
+		} elseif( $type == "textbox" ) {
 		
 			echo "<p><label for='".$p['name']."'>".$p['label']."</label>";
 			echo "<textarea id='".$p['name']."' name='".$p['name']."'></textarea></p>\n";

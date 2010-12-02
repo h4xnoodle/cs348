@@ -73,7 +73,7 @@ class Database {
 			$q .= $k."='".$v."',";
 		$q = substr($q,0,-1);
 		$q .= " WHERE ".$where['field']." ".$where['op']." '".$where['value']."'";
-		if( $co ) { // Dirty hax
+		if( $co ) { // Dirty hax for check out
 			$q .= " AND cid = (SELECT max(cid) FROM CheckInOuts WHERE pid = ".$where['value'].")";
 		}
 		return !($this->handle->exec( $q ) === false );

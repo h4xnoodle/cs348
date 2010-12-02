@@ -12,27 +12,25 @@ Design:
 - Change edtrecords DURATION to DECIMAL
 - Changed CheckInOuts to allow two physicians, and another ID, and primary key
 
+ETC:
+Menus built
+form builder
 
 
-
-
-TREATMENT
-- Data entry
-- Query
-
-
-
-PATIENT
-- Data entry
-- Query
-
-
-
-BILLING 
-- New table
-- Data Entry
-- Query
-
-
+EGs
 INSERT INTO Employees(ename,sin,address) values('Olivia',5152,'hello world');
 INSERT INTO Jobs(jname,jtype) values('OB','C');
+
+
+TOMORROW:
+Fix update for patients UDTS~
+Finish queries for admin
+
+BILLING~~~
+Diagram
+design doc
+test cases
+
+FRIDAY
+Review it
+CS343

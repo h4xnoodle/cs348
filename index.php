@@ -181,7 +181,38 @@ switch( key($_GET) ) {
 		?>
 	
 	<?php break; case 'billing': 
-		
+		$items = array(
+				'addAccount'=>'Add Account',
+				'receivePayment'=>'Receive Payment',
+				'closeAccount'=>'Close account'
+				);
+		buildSubMenu($items); ?>
+		<a name='addAccount'></a>
+		<h2><?php echo $items[0]; ?></h2>
+		<?php
+			$b = new Billing;
+			$noAcc = $b->getPatients();
+			$form = array(
+					'form_action'=>'addAccount',
+					'submit_text'=>'Create Billing Account',
+					'_dropdown1'=>array('label'=>'Patient','name'=>'pid',$noAcc);
+					'ins'=>'Insurance Provider'
+					);
+			buildForm($form);
+		?>
+
+		<a name='receivePayment'></a>
+		<h2><?php echo $items[1]; ?></h2>
+		<?php 
+			$b = new Billing;
+			$patients = $b->getPatients(true);
+			$form = array(
+					'form_action'=>'receivePayment',
+					'submit_text'=>'Update Bill',
+					'_dropdown1'=>array('label'=>'Patient','name'=>'pid',$patients),
+					'amnt'=>array('label'=>'Amount','value'=>0)
+					);
+			buildForm($form);
 		?>
 	
 	<?php break; case 'tests' : 
@@ -199,8 +230,9 @@ switch( key($_GET) ) {
 	?>
 		<h2>Read Me</h2>
 		<p>To use the functions of the hospital management system, choose an option from the above menu. Then, navigate to an appropriate sub-action.</p>
+		<p>You can edit the database connection credentials in config.php.</p>
 		<h2>Assumptions</h2>
-		<p>DB: cs348, Username: cs348, no password.</p>
+		<p>DB: cs348, Username: cs348, password cs348.</p>
 		<h2>Perform Tests</h2>
 		<p><a href="index.php?tests">HERE</a></p>
 

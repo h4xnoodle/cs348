@@ -13,17 +13,36 @@ class Billing {
 		try {
 			$this->dbh = new Database();
 		} catch( Exception $e ) {
-			die("Could not perform Admin action. Message: <br><br>".$e->getMessage());
+			die("Could not perform Billing action. Message: <br><br>".$e->getMessage());
 		}
 	}
 	
 	// Helpers
-	private function billingAccountExist( $pid ) {}
+	private function billingAccountExist( $pid ) {
+		$q = "SELECT bid FROM BillingAccounts WHERE pid = ".$pid;
+		return ($this->dbh->query($q) ? true : false); 
+	}
 	
+	public function getPatients( $option ) {
+		$q .= "SELECT pid,pname FROM Patients";
+		if( $option ) {
+			$q .= " WHERE pid IN(SELECT pid FROM BillingAccounts)";
+		} 
+		$q .= " ORDER BY pname DESC";
+		$result = $this->dbh->query($q);
+		if( $result ) {
+			foreach( $result as $r )
+				$results[$r['pid']] = $r['pname'];
+		}
+		return $results;
+	}
+
 	// Data entry
-	public function createBillingAccount( $pid, $stuff ) {}
+	public function createBillingAccount( $data ) {}
 	
-	public function updateBillingAccount( $pid, $stuff ) {}
+	public function updateBillingAccount( $data ) {}
+
+	public function receivePayment( $data ) {}
 	
 }
 

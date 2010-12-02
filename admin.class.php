@@ -3,6 +3,7 @@
 // Admin class
 // Patient administration
 
+
 require_once('database.class.php');
 
 class Admin {
@@ -17,11 +18,18 @@ class Admin {
 		}
 	}
 	
-	private function isPatient( $pname ) {
-		$q = "SELECT pid FROM Patients WHERE pname = '".$pname."'";
-		$result = $this->dbh->query($q);
-		if( $result ) return true;
-		return false;
+	private function isPatient( $p ) {
+		$q = "SELECT pid FROM Patients WHERE ";
+		if( is_numeric( $p ) )
+			$q .= "pid = ".$p;
+		else
+			$q .= "pname = '".$p."'";
+		return ($this->dbh->query($q));
+	}
+
+	private function isCheckedIn( $p ) {
+		$q = "SELECT cid FROM CheckInOuts WHERE pid = ".$p." AND outdate IS NULL";
+		return ($this->dbh->query($q) ? true : false);
 	}
 	
 	private function UDTInsert( $table, $data ) {
@@ -71,12 +79,24 @@ class Admin {
 	
 	public function updatePatient( $args ) {
 		if( !$this->isPatient($args['pname']) ) return false;
-		return $this->UDTUpdate('Patients',$args);
+		$where = array('field'=>'pid','value'=>$args['pid']);
+		array_shift($args); // remove pid
+		return $this->UDTUpdate('Patients',$args,$where);
 	}
 	
-	public function checkInPatient( $args ) {}
+	public function checkInPatient( $args ) {
+		if( !$this->isPatient( $args['pid'] ) ) return false;
+		if( $this->isCheckedIn( $args['pid'] ) ) return true;
+		return ($this->dbh->insert('CheckInOuts',$args));
+	}
 	
-	public function checkOutPatient( $args ) {}
+	public function checkOutPatient( $args ) {
+		if( !$this->isPatient( $args['pid'] ) ) return false;
+		if( !$this->isCheckedIn( $args['pid'] ) ) return false;
+		$where = array('field'=>'pid','value'=>$args['pid']);
+		array_shift($args); // remove pid from elements
+		return ($this->dbh->update('CheckInOuts',$args,$where,true));
+	}
 	
 	// Query functions
 	public function getCurrentPatients() {
@@ -111,7 +131,6 @@ class Admin {
 		return array('E'=>"Examination",'D'=>"Diagnosis",'T'=>"Treatment");
 	}
 	
-	// YYYY-MM-DD
 	public function getPatientsOnDate( $date ) {
 		return $this->getAllPatients( $date );
 	}
@@ -120,7 +139,7 @@ class Admin {
 		$results = array();
 		$q = "SELECT eid,ename FROM Employees WHERE eid IN(
 				SELECT eid FROM EmployeeJobs WHERE jid IN(
-					SELECT jid FROM Jobs WHERE jtype = 'C')))";
+					SELECT jid FROM Jobs WHERE jtype = 'C'))";
 		$result = $this->dbh->query($q);
 		if( $result ) {
 			foreach( $result as $r ) {

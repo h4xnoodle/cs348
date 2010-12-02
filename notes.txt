@@ -10,6 +10,7 @@ Design:
 
 - Restrict new EDT record to physicians, with dropdown.
 - Change edtrecords DURATION to DECIMAL
+- Changed CheckInOuts to allow two physicians, and another ID, and primary key
 
 
 
@@ -31,3 +32,7 @@ BILLING
 - New table
 - Data Entry
 - Query
+
+
+INSERT INTO Employees(ename,sin,address) values('Olivia',5152,'hello world');
+INSERT INTO Jobs(jname,jtype) values('OB','C');

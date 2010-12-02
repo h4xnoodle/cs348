@@ -10,9 +10,10 @@ include('header.php');
 switch( key($_GET) ) { 
 	case 'admin': 
 		$items = array(
-				'addPatient'=>"Add a Patient",
-				'updatePatient'=>"Update Patient",
-				'getPatientInfo'=>"Get Patient Info"
+				'addPatient'=>'Add',
+				'updatePatient'=>'Update',
+				'getPatientInfo'=>'Patient Info',
+				'checkInOut'=>'Check In/Out'
 				);
 		buildSubMenu( $items );
 		?>
@@ -40,6 +41,44 @@ switch( key($_GET) ) {
 		<h2>Update a Patient</h2>
 		<p>More stuff!</p>
 		
+		<a name="checkInOut"></a>
+		<h2>Patient Check In/Out</h2>
+		<p>Check in:</p>
+		<?php 
+			$allPhysicians = $allPatients = array();
+			$date = date('Y-m-d');
+			$a = new Admin;
+			$allPatients = $a->getAllPatients();
+			if( !$allPatients ) echo "<p class='notice'>There are no patient files! Please create one.</p>";
+			$allPhysicians = $a->getAllPhysicians();
+			if( !$allPhysicians ) echo "<p class='notice'>There are no physicians working at the hospital!</p>";
+			$form = array(
+					'form_action'=>'checkIn',
+					'submit_text'=>'Check In Patient',
+					'_dropdown1'=>array('label'=>'Patient','name'=>'pid',$allPatients),
+					'_dropdown2'=>array('label'=>'Physician','name'=>'eidin',$allPhysicians),
+					'indate'=>array('label'=>'Date (Default: Today)','value'=>$date)
+					);
+			buildForm( $form );
+		?>
+		<p>Check out:</p>
+		<?php 
+			$allPatients = array();
+			$date = date('Y-m-d');
+			$a = new Admin;
+			$allPatients = $a->getCurrentPatients();
+			if( !$allPatients ) echo "<p class='notice'>There are currently no patients to check out.</p>";
+			if( !$allPhysicians ) echo "<p class='notice'>There are no physicians working at the hospital!</p>";
+			$form = array(
+					'form_action'=>'checkOut',
+					'submit_text'=>'Check Out Patient',
+					'_dropdown1'=>array('label'=>'Patient','name'=>'pid',$allPatients),
+					'_dropdown2'=>array('label'=>'Physician','name'=>'eidout',$allPhysicians),
+					'outdate'=>array('label'=>'Date (Default: Today)','value'=>$date)
+					);
+			buildForm( $form );
+		?>
+		
 		<a name="getPatientInfo"></a>
 		<h2>Get Patient Information</h2>
 		<?php
@@ -57,10 +96,11 @@ switch( key($_GET) ) {
 		<a name='getPatientsOnDate'></a>
 		<h2>Get Patients admitted/released on a Specific Date</h2>
 		<?php
+			$date = date('Y-m-d');
 			$form = array(
 					'form_action'=>'getPatientsOnDate',
 					'submit_text'=>'Get Patients',
-					'date'=>"Date (YYYY-MM-DD)"
+					'date'=>array('label'=>'Date (YYYY-MM-DD)','value'=>$date),
 					);
 			buildForm( $form );
 		?>

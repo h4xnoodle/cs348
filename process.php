@@ -79,7 +79,7 @@ if( $_POST['submit'] ) {
 			if( $t->getEDTRecords( $data, (bool)$_POST['option'] ) )
 				header('Location: index.php?treatment&success=t');
 			else
-				$errors[] = "Failed to get EDT records.";
+				header('Location: index.php?treatment&success=tn');
 			break;
 			
 		// Admin
@@ -95,15 +95,41 @@ if( $_POST['submit'] ) {
 				$errors[] = "Failed to add a new patient.";
 			break;
 		case 'updatePatient':
-		
+			
+			break;
 		case 'checkIn':
-		
+			if( !checkFilled($_POST) ||
+				!verifyDate($_POST['indate']) ||
+				!checkNumber($_POST['pid']) ||
+				!checkNumber($_POST['eidin']) )
+				break;
+			$data = removeMeta($_POST);
+			$a = new Admin;
+			if( $a->checkInPatient( $data ) )
+				header('Location: index.php?admin&success=a');
+			else
+				$errors[] = "Failed to check in patient.";
+			break;
+			
+		// DO MORE STUFF HERE
 		case 'checkOut':
-		
+			if( !checkFilled($_POST) ||
+				!verifyDate($_POST['outdate']) ||
+				!checkNumber($_POST['eidout']) ||
+				!checkNumber($_POST['pid']) )
+				break;
+			$data = removeMeta($_POST);
+			$a = new Admin;
+			if( $a->checkOutPatient( $data ) )
+				header('Location: index.php?admin&success=a');
+			else
+				$errors[] = "Failed to check out patient.";
+			break;
+			
 		// Billing
 		
 		
-		default: echo "No action specified";
+		default: $errors[] = "Nothing was done...";
 	}
 	
 	// If we did not successfully perform the action, print out errors
@@ -112,4 +138,5 @@ if( $_POST['submit'] ) {
 		echo "<p class='error'>".$e."</p>";
 	include ('footer.php');
 }
+unset($_POST);
 ?>

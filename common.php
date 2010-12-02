@@ -25,6 +25,7 @@ function buildSubMenu( $items ) {
 function successMsg() {
 	if( array_key_exists('success',$_GET) ) {
 		switch( $_GET['success'] ) {
+			case 'tn':
 			case 't':
 				echo "<p class='success'>Treatment"; break;
 			case 'a':
@@ -33,7 +34,9 @@ function successMsg() {
 				echo "<p class='success'>Billing"; break;
 			default:;
 		}
-		echo " operation completed successfully!</p>";
+		echo " operation completed successfully!";
+		if( $_GET['success'] == 'tn' ) echo " But there were no records.";
+		echo "</p>";
 	}
 }
 
@@ -79,4 +82,5 @@ function buildForm( $args ) {
 	
 	echo "<p style='text-align:right;margin:0;'><input type='submit' name='submit' value='".$submit_text."'></p>\n";
 	echo "</form>";
+	echo "<p class='toplink'><a href='#'>Top</a></p>";
 }

@@ -3,16 +3,22 @@ body {
 }
 
 div#wrap {
-	margin:0 auto;
+	margin:20px auto;
 	width:640px;
-	padding:40px 30px 0 30px;
+	padding:30px 30px 0 30px;
 	background:#fdfdfd;
+	border:1px dotted #ccc;
 }
 	div#wrap h1 {
 		text-align:center;
-		font-family:Garamond, serif;
+		font-family:Verdana, serif;
 		font-size:40px;
-		color:#cc4400;
+		color:#F5AD03;
+		background:#FFEDB7;
+		border:1px solid #FCC646;
+		font-weight:normal;
+		margin:0; padding:30px 10px;
+		font-variant:small-caps;
 	}
 	div#wrap hr {
 		height:2px;
@@ -48,8 +54,8 @@ div#menu {
 			background:#ddd;
 		}
 		div#menu ul li.current a {
-			background-color:#ddd;
-			color:#444;
+			background-color:#89ACFF;
+			color:#213D80;
 		}
 
 div#body {
@@ -57,10 +63,15 @@ div#body {
 	margin:10px 0;
 }
 	div#body h2 {
-		font-family:Garamond, serif;
+		font-family:Verdana, serif;
 		font-size:25px;
+		font-variant:small-caps;
+		font-weight:normal;
 		color:#555;
 		margin:25px 0 10px 0;
+	}
+	div#body hr {
+		background:#aaa;
 	}
 	div#body p {
 		font-family:verdana,sans-serif;
@@ -68,6 +79,22 @@ div#body {
 		line-height:19px;
 		color:#333;
 	}
+		div#body p.toplink {
+			text-align:right;
+			padding:0; margin:5px 0 0 0;
+			font-size:10px;
+			text-transform:uppercase;
+		}
+			div#body p.toplink a {
+				padding:3px;
+				background:#ddd;
+				color:#777;
+				text-decoration:none;
+				border:1px solid #bbb;
+			}
+			div#body p.toplink a:hover {
+				background:#ccc;
+			}
 		div#body p.notice {
 			padding:5px;
 			background:#F2D65E;
@@ -102,7 +129,7 @@ div#body {
 		}
 		div#body ul.submenu li a {
 			display:block;
-			margin:0 5px;
+			margin:0 5px 0 0;
 			padding:5px;
 			text-decoration:none;
 			color:#666;
@@ -110,11 +137,17 @@ div#body {
 			font-size:14px;
 			background-color:#eee;
 		}
+		div#body ul.submenu li a:hover {
+			color:#268021;
+			background:#ABED89;
+		}
 	
 	div#body form {
-		border:1px dashed #ddd;
-		margin:10px;
-		padding:0 10px 5px 10px;
+		border:1px solid #ddd;
+		border-bottom:3px solid #ddd;
+		margin:0;
+		padding:0 10px 10px 10px;
+		background:#fff;
 	}
 	div#body form label {
 		float:left;
@@ -137,13 +170,22 @@ div#body {
 	div#body form textarea {
 		min-height:120px;
 	}
+	div#body form input:focus,
+	div#body form select:focus,
+	div#body form textare:focus {
+		background:#FFFFCF;
+	}
 
 div#footer {
 	font-family:Verdana,sans-serif;
 	font-size:16px;
-	color:#ccc;
+	color:#888;
 	height:40px;
 	line-height:40px;
 	text-align:center;
-	color:#ccc;
+	margin:20px 0 0 0;
+	background:#fff;
+	border-top:1px solid #ccc;
+	border-right:1px solid #ccc;
+	border-left:1px solid #ccc;
 }

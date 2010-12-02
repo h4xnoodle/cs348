@@ -61,14 +61,22 @@ class Database {
 			if ( !array_key_exists('op',$where) ) $where['op'] = "=";
 			$q .= " WHERE ".$where['field']." ".$where['op']." \"".$where['value']."\"";
 		}
-		echo $q;
 		return !($this->handle->exec($q) === false);
 	}
 	
 	// Build update statement
-	public function update( $table,$data,$where=false ) {
+	public function update( $table,$data,$where=false,$co=false ) {
 		if( !$where ) return false; // Must have 'where' clause
-	
+		if( !array_key_exists('op',$where) ) $where['op'] = '=';
+		$q = "UPDATE ".$table." SET ";
+		foreach( $data as $k=>$v ) 
+			$q .= $k."='".$v."',";
+		$q = substr($q,0,-1);
+		$q .= " WHERE ".$where['field']." ".$where['op']." '".$where['value']."'";
+		if( $co ) { // Dirty hax
+			$q .= " AND cid = (SELECT max(cid) FROM CheckInOuts WHERE pid = ".$where['value'].")";
+		}
+		return !($this->handle->exec( $q ) === false );
 	}
 	
 	// Delete

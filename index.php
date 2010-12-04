@@ -12,8 +12,8 @@ switch( key($_GET) ) {
 		$items = array(
 				'addPatient'=>'Add',
 				'updatePatient'=>'Update',
-				'getPatientInfo'=>'Patient Info',
-				'checkInOut'=>'Check In/Out'
+				'checkInOut'=>'Check In/Out',
+				'getPatientInfo'=>'Patient Info'
 				);
 		buildSubMenu( $items );
 		?>
@@ -26,7 +26,7 @@ switch( key($_GET) ) {
 					'form_action'=>'addPatient',
 					'submit_text'=>'Register Patient',
 					'pname'=>"Patient Name",
-					'dob'=>"Date of Birth (YYYY-MM-DD)",
+					'dob'=>"Date of Birth (MM/DD/YYYY)",
 					'address'=>"Address",
 					'contact_phone'=>"Contact Phone Number",
 					'contact_email'=>"Contact Email",
@@ -45,7 +45,7 @@ switch( key($_GET) ) {
 					'form_action'=>'updatePatient',
 					'submit_text'=>'Update Patient',
 					'_dropdown1'=>array('label'=>'Patient','name'=>'pid',$allPatients),
-					'dob'=>"Date of Birth (YYYY-MM-DD)",
+					'dob'=>"Date of Birth (MM/DD/YYYY)",
 					'address'=>"Address",
 					'contact_phone'=>"Contact Phone Number",
 					'contact_email'=>"Contact Email",
@@ -59,7 +59,7 @@ switch( key($_GET) ) {
 		<p>Check in:</p>
 		<?php 
 			$allPhysicians = $allPatients = array();
-			$date = date('Y-m-d');
+			$date = date('m/d/Y');
 			$a = new Admin;
 			$allPatients = $a->getAllPatients();
 			if( !$allPatients ) echo "<p class='notice'>There are no patient files! Please create one.</p>";
@@ -70,14 +70,14 @@ switch( key($_GET) ) {
 					'submit_text'=>'Check In Patient',
 					'_dropdown1'=>array('label'=>'Patient','name'=>'pid',$allPatients),
 					'_dropdown2'=>array('label'=>'Physician','name'=>'eidin',$allPhysicians),
-					'indate'=>array('label'=>'Date (Default: Today)','value'=>$date)
+					'indate'=>array('label'=>'Date (MM/DD/YYYY)','value'=>$date)
 					);
 			buildForm( $form );
 		?>
 		<p>Check out:</p>
 		<?php 
 			$allPatients = array();
-			$date = date('Y-m-d');
+			$date = date('m/d/Y');
 			$a = new Admin;
 			$allPatients = $a->getCurrentPatients();
 			if( !$allPatients ) echo "<p class='notice'>There are currently no patients to check out.</p>";
@@ -87,37 +87,36 @@ switch( key($_GET) ) {
 					'submit_text'=>'Check Out Patient',
 					'_dropdown1'=>array('label'=>'Patient','name'=>'pid',$allPatients),
 					'_dropdown2'=>array('label'=>'Physician','name'=>'eidout',$allPhysicians),
-					'outdate'=>array('label'=>'Date (Default: Today)','value'=>$date)
+					'outdate'=>array('label'=>'Date (MM/DD/YYYY)','value'=>$date)
 					);
 			buildForm( $form );
 		?>
 		
 		<a name="getPatientInfo"></a>
-		<h2>Get Patient Information</h2>
+		<h2>Get Patient Visits</h2>
 		<?php
 			$a = new Admin;
 			$allPatients = $a->getAllPatients();
 			if( !$allPatients )
 				echo "<p class='notice'>There are no patients at the hospital!</p>";
 			$form = array(
-					'form_action'=>'getPatientInfo',
+					'form_action'=>'getPatientVisits',
 					'submit_text'=>'Get Information',
-					'_dropdown1'=>array('label'=>"Patient Name",'name'=>"pname",$allPatients),
+					'_dropdown1'=>array('label'=>"Patient Name",'name'=>"pid",$allPatients),
 					);
 			buildForm( $form );
 		?>
-		<a name='getPatientsOnDate'></a>
+		
 		<h2>Get Patients admitted/released on a Specific Date</h2>
 		<?php
-			$date = date('Y-m-d');
+			$date = date('m/d/Y');
 			$form = array(
 					'form_action'=>'getPatientsOnDate',
 					'submit_text'=>'Get Patients',
-					'date'=>array('label'=>'Date (YYYY-MM-DD)','value'=>$date),
+					'date'=>array('label'=>'Date (MM/DD/YYYY)','value'=>$date),
 					);
 			buildForm( $form );
 		?>
-		<a name='getPatientsByPhysician'></a>
 		<h2>Get Patients Admitted/Released By Physcian</h2>
 		<?php
 			$a = new Admin;
@@ -126,7 +125,7 @@ switch( key($_GET) ) {
 				echo "<p class='notice'>No Physicians work at the hospital!</p>";
 			}
 			$form = array(
-					'form_action'=>'getPatientsByPhys',
+					'form_action'=>'getPatientsByPhysician',
 					'submit_text'=>'Get Patients',
 					'_dropdown1'=>array('label'=>"Physician",'name'=>'ename',$allPhysicians),
 					);
@@ -151,9 +150,8 @@ switch( key($_GET) ) {
 			$form = array(
 				'form_action'=>'newEDT',
 				'submit_text'=>'Create',
-				'_dropdown1'=>array('label'=>'Patient','name'=>'pid_name', $currentPatients),
-				'pid_num'=>array('label'=>'Patient ID Num','value'=>'0'),
-				'dateperf'=>'Date Performed (YYYY-MM-DD)',
+				'_dropdown1'=>array('label'=>'Patient','name'=>'pid', $currentPatients),
+				'dateperf'=>'Date Performed (MM/DD/YYYY)',
 				'_dropdown2'=>array('label'=>'Activity Type','name'=>'activitytype',$activitytypes),
 				'enames'=>'Physician Names (sep. by comma)',
 				'_textbox1'=>array('label'=>'Description','name'=>'description'),
@@ -173,47 +171,114 @@ switch( key($_GET) ) {
 			$form = array(
 				'form_action'=>'getEDT',
 				'submit_text'=>'Retrieve',
-				'_dropdown1'=>array('label'=>'Patient','name'=>'pid_name',$allPatients),
-				'pid_num'=>array('label'=>'Patient ID','value'=>0),
-				'_dropdown2'=>array('label'=>'Option','name'=>'option',array('0'=>'All visits','1'=>'Current Visit Only'))
+				'_dropdown1'=>array('label'=>'Patient','name'=>'pid',$allPatients),
+				'_dropdown2'=>array('label'=>'Option','name'=>'option',array('0'=>'All visits','current'=>'Current Visit Only'))
 				);
 			buildForm( $form );
 		?>
 	
 	<?php break; case 'billing': 
 		$items = array(
-				'addAccount'=>'Add Account',
+				'addAccount'=>'Add',
+				'updateAccount'=>'Update',
+				'processEDTs'=>'Process EDTs',
 				'receivePayment'=>'Receive Payment',
-				'closeAccount'=>'Close account'
+				'closeAccount'=>'Close account',
+				'getBill'=>'Get Bill'
 				);
 		buildSubMenu($items); ?>
 		<a name='addAccount'></a>
-		<h2><?php echo $items[0]; ?></h2>
+		<h2><?php echo $items['addAccount']; ?></h2>
+		<p>Data such as date of birth, contact information, and address are implicitly added from the patients' existing file.</p>
 		<?php
 			$b = new Billing;
-			$noAcc = $b->getPatients();
+			$noAcc = $b->getPatients( false ); // Patients without accounts
+			if( !$noAcc ) echo "<p class='notice'>All patients have billing accounts.</p>";
 			$form = array(
 					'form_action'=>'addAccount',
 					'submit_text'=>'Create Billing Account',
-					'_dropdown1'=>array('label'=>'Patient','name'=>'pid',$noAcc);
-					'ins'=>'Insurance Provider'
+					'_dropdown1'=>array('label'=>'Patient','name'=>'pid',$noAcc),
+					'insname'=>'Insurance Provider',
+					'insacct'=>'Insurance Account #',
+					'insaddress'=>'Insurance Provider Addr.'
 					);
 			buildForm($form);
 		?>
-
+		<a name='updateAccount'></a>
+		<h2><?php echo $items['updateAccount']; ?></h2>
+		<?php
+			$b = new Billing;
+			$acc = $b->getPatients( true ); // Patients with accounts only
+			if( !$acc ) echo "<p class='notice'>There are no patients with billing accounts.</p>";
+			$form = array(
+					'form_action'=>'updateAccount',
+					'submit_text'=>'Update Billing Account',
+					'_dropdown1'=>array('label'=>'Patient','name'=>'pid',$acc),
+					'insname'=>'Insurance Provider',
+					'insacct'=>'Insurance Account #',
+					'insaddress'=>'Insurance Provider Addr.'
+					);
+			buildForm($form);
+		?>
+	
+		<a name='processEDTs'></a>
+		<h2>Process EDTs</h2>
+		<p>Select a patient to being processing EDT records for. You will then have the option to process all records or process them individually.</p>
+		<?php
+			$a = new Admin;
+			$allPatients = $a->getAllPatients();
+			$form = array(
+					'form_action'=>'processEDTDisplay',
+					'submit_text'=>'Begin Processing',
+					'_dropdown1'=>array('label'=>'Patient','name'=>'pid',$allPatients),
+					);
+			buildForm($form);
+		?>
+		
+		<a name='closeAccount'></a>
+		<h2>Close an Account</h2>
+		<p>You will need to confirm for patients with outstanding balances. This action will remove all records for this patient in all modules.</p>
+		<?php 
+			$b = new Billing;
+			$acc = $b->getPatients( true ); // Patients with accounts only
+			if( !$acc ) echo "<p class='notice'>There are no patients with billing accounts.</p>";
+			$form = array(
+					'form_action'=>'closeAccount',
+					'submit_text'=>'Close Billing Account',
+					'_dropdown1'=>array('label'=>'Patient','name'=>'pid',$acc)
+					);
+			buildForm($form);
+		?>
+		
 		<a name='receivePayment'></a>
-		<h2><?php echo $items[1]; ?></h2>
+		<h2><?php echo $items['receivePayment']; ?></h2>
 		<?php 
 			$b = new Billing;
 			$patients = $b->getPatients(true);
+			if( !$patients ) echo "<p class='notice'>There are no patients with billing accounts.</p>";
 			$form = array(
 					'form_action'=>'receivePayment',
 					'submit_text'=>'Update Bill',
 					'_dropdown1'=>array('label'=>'Patient','name'=>'pid',$patients),
-					'amnt'=>array('label'=>'Amount','value'=>0)
+					'amnt'=>array('label'=>'Amount $','value'=>0)
 					);
 			buildForm($form);
 		?>
+		
+		<a name='getBill'></a>
+		<h2><?php echo $items['getBill']; ?></h2>
+		<?php 
+			$b = new Billing;
+			$patients = $b->getPatients(true);
+			if( !$patients ) echo "<p class='notice'>There are no patients with billing accounts.</p>";
+			$form = array(
+					'form_action'=>'getBill',
+					'submit_text'=>'Get Bill',
+					'_dropdown1'=>array('label'=>'Patient','name'=>'pid',$patients)
+					);
+			buildForm($form);
+		?>		
+		
 	
 	<?php break; default: 
 		$items = array(

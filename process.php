@@ -1,147 +1,168 @@
 <?php
 
 // Process all the forms on index.php
+// Call the appropriate class methods for each module
+
 include('admin.class.php');
 include('treatment.class.php');
 include('billing.class.php');
 include('common.php');
+include('header.php');
 
-$errors = array();
-
-function verifyDate( $date ) {
-	global $errors;
-	$date = explode('-',$date);
-	if( !(strlen($date[0])==4 && strlen($date[1])==2 && strlen($date[2])==2) ) {
-		$errors[] = "The date provided is invalid. Use YYYY-MM-DD format.";
-		return false;
-	}
-	return true;
-}
-
-function checkFilled( $form ) {
-	$count = 0;
-	global $errors;
-	foreach( $form as $k=>$v ) {
-		if( $v == '' )
-			$count++;
-	}
-	if( $count ) $errors[] = "There were ".$count." fields left blank. Please fill them out.";
-	return (!(bool)$count);
-}
-
-function filterData( $rm ) {
-	while( list($k,$v) = each($rm) ) {
-		if( $k != 'form_action' && $k != 'submit' )
-			$result[$k] = $v;
-	}
-	return $result;
-}
-
-function checkNumber( $field ) {
-	global $errors;
-	if( !is_numeric( $field ) ) {
-		$errors[] = "Please ensure you input numbers in the appropriate fields (cost, patient ID, duration, etc)";
-		return false;
-	}
-	return true;
-}
-
-// Big assumption: $_POST only contains my form data, with 'form_action' and 'submit' as the 'meta' for the forms.
-// If this doesn't hold, it is likely this entire thing will break. FIX? extract function
-if( $_POST['submit'] ) {
+if( array_key_exists('submit',$_POST) ) {
 	$action = $_POST['form_action'];
 	$data = filterData($_POST);
 	switch( $action ) {
-		// EDT - Treatment
+	
+		// EDT - Treatment Module 1
 		case 'newEDT':
-			if( !checkFilled($data) || !verifyDate($data['dateperf']) || 
-				!checkNumber($data['cost']) || !checkNumber($data['duration']) ||
-				!checkNumber($data['pid_num']) ) 
-				break;
-			
-			$pid = ($data['pid_num'] ? $data['pid_num'] : $data['pid_name']);
-			array_shift($data); // pid_num
-			array_shift($data); // pid_name
-			$data['pid'] = $pid;
-			$t = new Treatment;
+			$t = new Treatment;		
 			if( $t->newEDT($data) )
 				header('Location: index.php?treatment&success=t');
 			else
-				$errors[] = "Failed to insert new EDT Record.";
+				printError("Failed to insert new EDT Record.");
 			break;
 		case 'getEDT':
-			if( !checkFilled($data) || !checkNumber($data['pid_num']) )
-				break;
-			$pid = ($data['pid_num'] ? $data['pid_num'] : $data['pid_name']);
 			$t = new Treatment;
-			if( $t->getEDTRecords( $data, (bool)$data['option'] ) )
-				header('Location: index.php?treatment&success=t');
+			$results = $t->getEDTRecords($data['pid'], (bool)$data['option']);
+			if( $results )
+				$t->displayEDTRecords($results);
 			else
 				header('Location: index.php?treatment&success=tn');
 			break;
 			
-		// Admin
+		// Admin module
 		case 'addPatient':
-			if( !checkFilled($data) || !verifyDate($data['dob']) )
-				break;
 			$a = new Admin;
 			if( $a->addPatient($data) )
 				header('Location: index.php?admin&success=a');
 			else
-				$errors[] = "Failed to add a new patient.";
+				printError("Failed to add a new patient.");
 			break;
 		case 'updatePatient':
-			if( !checkFilled($data) || !verifyDate($data['dob']) )
-				break;
 			$a = new Admin;
 			if( $a->updatePatient($data) )
 				header('Location: index.php?admin&success=a');
 			else
-				$errors[] = "Failed to update patient.";
+				printError("Failed to update patient.");
 			break;
 		case 'checkIn':
-			if( !checkFilled($data) || !verifyDate($data['indate']) ||
-				!checkNumber($data['pid']) || !checkNumber($data['eidin']) )
-				break;
 			$a = new Admin;
 			if( $a->checkInPatient( $data ) )
 				header('Location: index.php?admin&success=a');
 			else
-				$errors[] = "Failed to check in patient.";
+				printError("Failed to check in patient.");
 			break;
-		case 'getPatientAdmits':
-			if( !checkFilled($data) ) break;
-			$a = new Admin;
-			$results = $a->getPatientAdmits($data);
-			
-			break;
-		case 'getPatientsByPhys':
-		
-			break;
-		// DO MORE STUFF HERE ~~~~~~~~~~~~~~~~~~~~
 		case 'checkOut':
-			if( !checkFilled($data) || !verifyDate($data['outdate']) ||
-				!checkNumber($data['eidout']) || !checkNumber($data['pid']) )
-				break;
 			$a = new Admin;
 			if( $a->checkOutPatient( $data ) )
 				header('Location: index.php?admin&success=a');
 			else
-				$errors[] = "Failed to check out patient.";
+				printError("Failed to check out patient.");
+			break;	
+		case 'getPatientsOnDate':
+			$a = new Admin;
+			$a->displayPatientsOnDate($data['date']);
 			break;
-			
-			
+		case 'getPatientVisits':
+			$a = new Admin;
+			$a->displayPatientVisits($data['pid']);
+			break;
+		case 'getPatientsByPhysician':
+			$a = new Admin;
+			$a->displayPhysiciansPatients($data['ename']);
+			break;
+
+		// Billing module
+		case 'addAccount':
+			$b = new Billing;
+			if( $b->addAccount($data) )
+				header('Location: index.php?billing&success=b');
+			else
+				printError("Failed to add billing account.");
+			break;
+		case 'updateAccount':
+			$b = new Billing;
+			if( $b->updateAccount($data) )
+				header('Location: index.php?billing&success=b');
+			else
+				printError("Failed to update billing account.");
+			break;
+		case 'receivePayment':
+			$b = new Billing;
+			if( $b->receivePayment($data) )
+				header('Location: index.php?billing&success=b');
+			else
+				printError("Failed to receive payment.");
+			break;
+		case 'processEDTDisplay':
+			$t = new Treatment;
+			$b = new Billing;
+			$edts = $t->getUnprocessedEDTs($data['pid']);
+			$b->displayUnprocessedEDTs($edts);
+			break;
+		case 'processAllEDTs':
+			$success = true;
+			$b = new Billing;
+			$t = new Treatment;
+			$all = $t->getUnprocessedEDTs($data['pid']);
+			foreach( $all as $e ) {
+				if( !$b->processEDT($e['edtid']) ) {
+					$success = false;
+					break;
+				}
+			}
+			if( $success ) header('Location: index.php?billing&success=b');
+			else printError("Failed to process all EDT records.");
+			break;
+		case 'closeAccount':
+			$b = new Billing;
+			$bill = $b->getBill($data['pid']);
+			if( $bill['balance'] >= 0 ) {
+				$b->displayBill($data['pid']);
+				echo "<p class='confirmDelete'>Are you sure you wish to delete all information associated with this account?</p>";
+				$form = array(
+						'form_action'=>'closeAccountConfirm',
+						'submit_text'=>'Confirm Deletion of All Information',
+						'_hidden1'=>array('name'=>'pid','value'=>$data['pid']),
+						'_dropdown1'=>array('label'=>'Response','name'=>'confirm',array(0=>'No',1=>'Yes'))
+						);
+				buildForm($form);
+				break;
+			}
+			$data['confirm'] = 1;
+			// Fall through otherwise
+		case 'closeAccountConfirm':
+			$b = new Billing;
+			if( !$data['confirm'] ) {
+				header('Location: index.php?billing&success=bn');
+			} else {
+				if( $b->closeAccount($data['pid']) ) 
+					header('Location: index.php?billing&success=b');
+				else
+					printError("Failed to delete patient.");
+			}
+			break;
+		case 'getBill':
+			$b = new Billing;
+			$b->displayBill($data['pid']);
+			break;
 		
-		// Billing
-		
-		
-		default: $errors[] = "Nothing was done...";
+		default: printError("Nothing was done...");
 	}
-	
-	// If we did not successfully perform the action, print out errors
-	include('header.php');
-	foreach( $errors as $e ) 
-		echo "<p class='error'>".$e."</p>";
-	include ('footer.php');
+} elseif( $_GET['processEDT'] ) {
+	$b = new Billing;
+	$t = new Treatment;
+	if( substr($_GET['processEDT'],0,3) == 'all' ) {
+		
+	} else {
+		if( $b->processEDT($_GET['processEDT']) )
+			header('Location: index.php?billing&success=b');
+		else
+			printError("Failed to process EDT record.");
+	}
+} else {
+	echo "<p>This page is purely for processing form actions.</p>";
 }
+include('footer.php');
 ?>

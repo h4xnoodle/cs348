@@ -111,6 +111,12 @@ div#body {
 			color:#235930;
 			border:1px solid #44AA55;
 		}
+		div#body p b.positive {
+			color:#A40802;
+		}
+		div#body p b.negative {
+			color:#235930;
+		}
 		div#body p.error {
 			color:#A40802;
 			border:1px solid #C62626;
@@ -163,7 +169,7 @@ div#body {
 	div#body form select,
 	div#body form textarea{
 		min-width:250px;
-		margin:0 0 0 0px;
+		margin:5px 0 0 0px;
 		padding:5px;
 		font-family:Verdana, sans-serif;
 	}
@@ -175,6 +181,37 @@ div#body {
 	div#body form textare:focus {
 		background:#FFFFCF;
 	}
+	div#body table {
+		width:100%;
+		border-collapse:collapse;
+		border:1px solid #ddd;
+	}
+		div#body table tr.odd {
+			background:#eee;
+			margin:0; padding:0;
+		}
+			
+		div#body table th,
+		div#body table td {
+			padding:4px;
+			border:1px solid #ddd;
+			font-family:Verdana, sans-serif;
+			font-size:10px;
+		}
+			div#body table td a {
+				display:block;
+				text-align:center;
+				color:#235930;
+				font-weight:bold;
+				text-decoration:none;
+			}
+			div#body table td a:hover {
+				color:#ccc;
+			}
+		div#body table th {
+			font-size:12px;
+			background:#eee;
+		}
 
 div#footer {
 	font-family:Verdana,sans-serif;

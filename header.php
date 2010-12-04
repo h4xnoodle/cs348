@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Hospital Management System</title>
+	<title>Hospital Management System  - <?php echo $_SERVER['QUERY_STRING']; ?></title>
 	<link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body>

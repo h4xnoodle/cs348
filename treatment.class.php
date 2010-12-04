@@ -4,6 +4,8 @@
 // Creation of EDT records
 
 require_once('database.class.php');
+include('admin.class.php');
+include('common.php');
 
 class Treatment {
 
@@ -24,45 +26,93 @@ class Treatment {
 		return false;
 	}
 	
-	// Data entry
-	// $data: pid,dateperf,activitytype,enames,description,duration,outcome,cost
-	// Check: Open file for patient (pid valid)
 	public function newEDT( $data ) {
-		if( !$this->isPatient( $data['pid'] ) ) return false;
-		return ($this->dbh->insert('EDTRecords',$data));
+		if( !$this->isPatient( $data['pid'] ) || !checkFilled($data) || 
+			!verifyDate($data['dateperf']) || !checkNumber($data['cost']) || 
+			!checkNumber($data['duration']) || !checkNumber($data['pid']) ) 
+			return false;
+		
+		// Verify the physicians mentioned are valid
+		$a = new Admin;
+		$physicians = $a->getAllPhysicians();
+		$enames = explode(',',$data['enames']);
+		foreach( $enames as  $e) {
+			if( !array_search(trim($e), $physicians) ) {
+				printError("A physician specified in the Physician Names field does not exist.");
+				return false;
+			}
+		}
+		$success = true;
+		$pid = $data['pid'];
+		unset($data['pid']);
+		if( !$this->dbh->insert('EDTRecords',$data) ) { 
+			$success = false;
+		} else {
+			$result = $this->dbh->query('SELECT MAX(edtid) AS last FROM EDTRecords');
+			print_r($result);
+			$newEDT = $result[0]['last']; // Could potentially be bad, if the ordering of insertions between users interferes
+		}
+		if( !$this->dbh->insert('PatientExaminations',array('pid'=>$pid,'edtid'=>$newEDT)) )
+			$success = false;
+		return $success;
 	}
 	
 	// Query
 	public function getEDTRecords( $pid, $option=false ) {
-		if( !$this->isPatient( $pid ) ) return false;
-		$q = "SELECT dateperf,activitytype,enames,description,duration,outcome " .
-				"FROM EDTRecords WHERE pid = '".$pid."'";
+		$result = false;
+		if( !$this->isPatient( $pid ) || !checkNumber($pid) )
+			return $result;
+			
+		$q = "SELECT P.edtid, A.pname,E.dateperf,E.activitytype,E.enames,E.description,E.duration,E.outcome, E.cost
+			 FROM EDTRecords E,Patients A,PatientExaminations P WHERE A.pid = P.pid AND P.edtid = E.edtid AND P.pid = '".$pid."'";
 		
-		// Print out entries for current visit only
-		// 'biggest' checkin and later.
-		if( $option ) {
-			$q .= " AND ...";
+		// Print out entries for current visit only if true
+		if( $option == 'current' ) {
+			$q .= " AND P.pid IN(SELECT pid FROM CheckInOuts WHERE outdate IS NULL)";
+		} elseif ( $option == 'unprocessed' ) {
+			$q .= " AND P.processed = 0";
 		}
 		$result = $this->dbh->query($q);
-		if( $result ) return $result;
-		return false;
+		return $result;
+	}
+	
+	public function getUnprocessedEDTs( $pid ) {
+		return $this->getEDTRecords($pid,'unprocessed');
 	}
 	
 	// Display
+	private function special($key, $value) {
+		switch( $key ) {
+			case 'activitytype':
+				$a = new Admin;
+				$activities = $a->getActivityTypes(); 
+				return $activities[$value];
+			case 'duration':
+				return $value." hrs";
+			case 'dateperf':
+				return date('m/d/Y',strtotime($value));
+			default: return $value;
+		}
+	}
+	
 	public function displayEDTRecords( $data ) {
+		echo "<h2>EDT Records for ".$data[0]['pname']."</h2>";
+		for($i=0;$i < count($data);$i++) unset($data[$i]['pname']);
 		if( !$data ) {	
-			echo "Nothing to display.";
+			echo "<p class='notice'>Nothing to display.</p>";
 			return;
 		}
+		$moo = 0;
 		echo "<table>";
-		echo "<tr><th>Date Performed</th><th>Activity Type</th><th>Names of Physicians</th><th>Description</th><th>Duration</th><th>Outcome</th>";
+		echo "<tr><th>Date</th><th>Activity</th><th>Physicians</th><th>Description</th><th>Duration</th><th>Outcome</th>";
 		foreach( $data as $record ) {
-			echo "<tr>";
+			unset($record['cost'],$record['edtid']); // Don't display cost but we wanted cost for other uses from getEDTRecords().
+			echo "<tr".($moo % 2 ? " class='odd'" : "").">";
 			foreach( $record as $k=>$field ) {
-				if( is_numeric($k) )
-					echo "<td>".$field."</td>";
+				echo "<td>".$this->special($k,$field)."</td>";
 			}
 			echo "</tr>";
+			$moo++;
 		}
 		echo "</table>";
 	}

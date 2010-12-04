@@ -93,12 +93,11 @@ function runAdmin() {
 	$db->delete('Patients',array('field'=>'pname','value'=>'TEST1'),1);
 }
 
-runTreatment();
-runBilling();
-runAdmin();
+//runTreatment();
+//runBilling();
+//runAdmin();
 
 // Output
-echo "<h2>Tests</h2><p>Running teeesstttsss</p>";
 echo "<table>";
 echo "<tr><th>Name</th><th>Result</th></tr>";
 foreach( $results as $n=>$r ) {

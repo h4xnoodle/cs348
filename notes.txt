@@ -11,6 +11,14 @@ Design:
 - Restrict new EDT record to physicians, with dropdown.
 - Change edtrecords DURATION to DECIMAL
 - Changed CheckInOuts to allow two physicians, and another ID, and primary key
+- Must be patient before billing account - rm duplicate entering of info. Automagically filled in from patient file
+	- allowed blank insurance
+- added "ON DELETE CASCADE" to all foreign keys
+- could create indices
+- preqs: add physicians
+- added transforms
+
+http://www.zend.com/en/products/server-ce/index
 
 ETC:
 Menus built
@@ -20,17 +28,19 @@ form builder
 EGs
 INSERT INTO Employees(ename,sin,address) values('Olivia',5152,'hello world');
 INSERT INTO Jobs(jname,jtype) values('OB','C');
+INSERT INTO EmployeeJobs(eid,jid) VALUES(1,1);
 
 
-TOMORROW:
-Fix update for patients UDTS~
-Finish queries for admin
+TO DO
 
-BILLING~~~
+
+
+
+
 Diagram
 design doc
 test cases
 
-FRIDAY
+Sat
 Review it
 CS343

@@ -36,7 +36,7 @@ class Database {
 		return $results;
 	}
 	
-	// Really only for UDTInsert in Admin
+	// Really only for UDTInsert/Update in Admin
 	public function directInsert( $query ) {
 		return !($this->handle->exec( $query ) === false);
 	}
@@ -47,21 +47,32 @@ class Database {
 		$q .= key($data);
 		next($data);
 		while( list($k,$v) = each($data) ) {
-			$q .= ",".$k;
+			if($v != '')
+				$q .= ",".$k;
 		}
-		$q .= ") VALUES(";
+		$q .= ") VALUES(?";
 		reset($data);
-		$q .= "'".current($data)."'";
 		next($data);
-		while( list($k,$v) = each($data) ) {
-			$q .= ",'".$v."'";
+		while( list($k,$v) = each($data)) {
+			if($v != '') $q .= ",?";
 		}
 		$q .= ")";
+		reset($data);
+		$prepared[] = current($data);
+		next($data);
+		while( list($k,$v) = each($data) ) {
+			if($v != '')
+				$prepared[] = $v;
+		}
+		
 		if( $where ) {
 			if ( !array_key_exists('op',$where) ) $where['op'] = "=";
 			$q .= " WHERE ".$where['field']." ".$where['op']." \"".$where['value']."\"";
 		}
-		return !($this->handle->exec($q) === false);
+		echo "<pre>".$q."</pre>";
+		$stmt = $this->handle->prepare($q);
+		echo $q; print_r($prepared); 
+		return !($stmt->execute($prepared) === false);
 	}
 	
 	// Build update statement

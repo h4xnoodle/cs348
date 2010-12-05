@@ -1,6 +1,20 @@
 <?php
 
-// Build the menus with arrays
+/*	================================================
+
+	Author:	Rebecca Putinski
+	UWID:	20271463
+	Class:	CS348 Section 3
+	
+	This file:
+		Common functions between files that didn't
+		warrant a separate class (non-API-like).
+		Essentially makes my life easier.
+		
+	================================================
+*/
+
+// Build the main menu
 function buildMenu() {
 	$items = array(
 				'admin'=>'Admin',
@@ -13,6 +27,7 @@ function buildMenu() {
 	}
 }
 
+// Build the submenu
 function buildSubMenu( $items ) {
 	if( $items ) {
 		echo "<p><ul class='submenu'>";
@@ -101,19 +116,21 @@ function printError( $msg ) {
 
 // Form validation functions
 // Verify the date is correctly input
+function inrange($low,$high,$value) {
+	return ($value >= $low && $value <= $high);
+}
+
 function verifyDate( $date ) {
-	function inrange($low,$high,$value) {
-		return ($value >= $low && $value <= $high);
-	}
 	$date = explode('/',$date);
-	if( ! ((strlen($date[0])==2 && inrange(1,31,$date[0])) && 
-			(strlen($date[1])==2 && inrange(1,12,$date[1])) &&
+	if( ! ((strlen($date[0])==2 && inrange(1,12,$date[0])) && 
+			(strlen($date[1])==2 && inrange(1,31,$date[1])) &&
 			(strlen($date[2])==4) && inrange(1900,2020,$date[2])) ) {
 		printError("The date provided is invalid. Use MM/DD/YYYY format.");
 		return false;
 	}
 	return true;
 }
+
 // Check that all fields are filled (this is not used for 'update' actions)
 function checkFilled( $form ) {
 	$count = 0;
@@ -124,6 +141,7 @@ function checkFilled( $form ) {
 	if( $count ) printError("There were ".$count." fields left blank. Please fill them out.");
 	return (!(bool)$count);
 }
+
 // Filter out the form meta data (action to take on submit, and value of submit.
 function filterData( $rm ) {
 	$result = array();
@@ -133,6 +151,7 @@ function filterData( $rm ) {
 	}
 	return $result;
 }
+
 // Verify a field is a number when it should be
 function checkNumber( $field ) {
 	if( !is_numeric( $field ) ) {

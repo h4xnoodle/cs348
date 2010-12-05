@@ -1,3 +1,15 @@
+/*	================================================
+
+	Author:	Rebecca Putinski
+	UWID:	20271463
+	Class:	CS348 Section 3
+	
+	This file:
+		Style for the whole thing!
+		
+	================================================
+*/
+
 body {
 	margin:0;
 }
@@ -79,6 +91,15 @@ div#body {
 		line-height:19px;
 		color:#333;
 	}
+		div#body p a {
+			color:#444;
+			text-decoration:none;
+			background-color:#ddd;
+		}
+		div#body p a:hover {
+			background-color:#bbb;
+			color:#111;
+		}
 		div#body p.toplink {
 			text-align:right;
 			padding:0; margin:5px 0 0 0;
@@ -160,7 +181,7 @@ div#body {
 		font-size:12px;
 		min-width:250px;
 		text-align:right;
-		margin:3px 10px 0 0;
+		margin:8px 10px 0 0;
 	}
 	div#body form label:after {
 		content:":";

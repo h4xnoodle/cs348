@@ -1,7 +1,17 @@
 <?php
 
-// Process all the forms on index.php
-// Call the appropriate class methods for each module
+/*	================================================
+
+	Author:	Rebecca Putinski
+	UWID:	20271463
+	Class:	CS348 Section 3
+	
+	This file:
+		Process the forms from the index.php. Calls
+		to the APIs.
+		
+	================================================
+*/
 
 include('admin.class.php');
 include('treatment.class.php');
@@ -9,29 +19,13 @@ include('billing.class.php');
 include('common.php');
 include('header.php');
 
+// Decide which form we're processing
 if( array_key_exists('submit',$_POST) ) {
 	$action = $_POST['form_action'];
 	$data = filterData($_POST);
 	switch( $action ) {
-	
-		// EDT - Treatment Module 1
-		case 'newEDT':
-			$t = new Treatment;		
-			if( $t->newEDT($data) )
-				header('Location: index.php?treatment&success=t');
-			else
-				printError("Failed to insert new EDT Record.");
-			break;
-		case 'getEDT':
-			$t = new Treatment;
-			$results = $t->getEDTRecords($data['pid'], (bool)$data['option']);
-			if( $results )
-				$t->displayEDTRecords($results);
-			else
-				header('Location: index.php?treatment&success=tn');
-			break;
-			
-		// Admin module
+
+		// Admin Module 1
 		case 'addPatient':
 			$a = new Admin;
 			if( $a->addPatient($data) )
@@ -72,8 +66,27 @@ if( array_key_exists('submit',$_POST) ) {
 			$a = new Admin;
 			$a->displayPhysiciansPatients($data['ename']);
 			break;
-
-		// Billing module
+			
+		// ====================================================		
+		// Treatment Module 2
+		case 'newEDT':
+			$t = new Treatment;		
+			if( $t->newEDT($data) )
+				header('Location: index.php?treatment&success=t');
+			else
+				printError("Failed to insert new EDT Record.");
+			break;
+		case 'getEDT':
+			$t = new Treatment;
+			$results = $t->getEDTRecords($data['pid'], (bool)$data['option']);
+			if( $results )
+				$t->displayEDTRecords($results);
+			else
+				header('Location: index.php?treatment&success=tn');
+			break;
+		
+		// ====================================================
+		// Billing Module 3
 		case 'addAccount':
 			$b = new Billing;
 			if( $b->addAccount($data) )
@@ -148,19 +161,52 @@ if( array_key_exists('submit',$_POST) ) {
 			$b->displayBill($data['pid']);
 			break;
 		
+		// Do nothing
 		default: printError("Nothing was done...");
 	}
-} elseif( $_GET['processEDT'] ) {
+
+// ==================================================
+
+// Special cases
+// Process an individual EDT
+} elseif( array_key_exists('processEDT',$_GET) && $_GET['processEDT'] ) {
 	$b = new Billing;
 	$t = new Treatment;
-	if( substr($_GET['processEDT'],0,3) == 'all' ) {
-		
+	if( $b->processEDT($_GET['processEDT']) )
+		header('Location: index.php?billing&success=b');
+	else
+		printError("Failed to process EDT record.");
+
+// For first run of this HMS (index.php)
+} elseif( $_SERVER['QUERY_STRING'] == 'insertEmployees' ) {
+	$db = new Database;
+	if( $db->query("SELECT sin FROM Employees") ) {
+		echo "<p class='notice'>This employee already exists.</p>";
 	} else {
-		if( $b->processEDT($_GET['processEDT']) )
-			header('Location: index.php?billing&success=b');
+		$employee = array('ename'=>'Emp1','sin'=>1337,'address'=>'1 Hello Wrld.');
+		$job = array('jname'=>'OB','jtype'=>'C');
+		if( $db->insert('Employees',$employee) )
+			echo "<p class='success'>Employee inserted</p>";
 		else
-			printError("Failed to process EDT record.");
+			echo "<p class='error'>Could not insert employee</p>";
+		
+		if( $db->insert('Jobs',$job) )
+			echo "<p class='success'>Job inserted</p>";
+		else
+			echo "<p class='error'>Could not insert job</p>";
+			
+		$myEid = $db->query("SELECT eid FROM Employees WHERE sin='1337'");
+		$myEid = $myEid[0]['eid'];
+		$jid = $db->query("SELECT jid FROM Jobs WHERE jname='OB'");
+		$jid = $jid[0]['jid'];
+		
+		if( $db->insert('EmployeeJobs',array('eid'=>$myEid,'jid'=>$jid)) )
+			echo "<p class='success'>Employee Job relationship realised.</p>";
+		else
+			echo "<p class='error'>Could not complete actions.</p>";
 	}
+	
+// If you access process.php without any of the above defined
 } else {
 	echo "<p>This page is purely for processing form actions.</p>";
 }

@@ -1,7 +1,18 @@
 <?php
 
-// Treatment class
-// Creation of EDT records
+/*	================================================
+
+	Author:	Rebecca Putinski
+	UWID:	20271463
+	Class:	CS348 Section 3
+	
+	This file:
+		API for billing actions. 
+		Billing accounts for patients, billing
+		specialists manage accounts.
+		
+	================================================
+*/
 
 require_once('database.class.php');
 include('admin.class.php');
@@ -45,11 +56,11 @@ class Treatment {
 		$success = true;
 		$pid = $data['pid'];
 		unset($data['pid']);
+		$newEDT = 0;
 		if( !$this->dbh->insert('EDTRecords',$data) ) { 
 			$success = false;
 		} else {
 			$result = $this->dbh->query('SELECT MAX(edtid) AS last FROM EDTRecords');
-			print_r($result);
 			$newEDT = $result[0]['last']; // Could potentially be bad, if the ordering of insertions between users interferes
 		}
 		if( !$this->dbh->insert('PatientExaminations',array('pid'=>$pid,'edtid'=>$newEDT)) )
@@ -63,8 +74,10 @@ class Treatment {
 		if( !$this->isPatient( $pid ) || !checkNumber($pid) )
 			return $result;
 			
-		$q = "SELECT P.edtid, A.pname,E.dateperf,E.activitytype,E.enames,E.description,E.duration,E.outcome, E.cost
-			 FROM EDTRecords E,Patients A,PatientExaminations P WHERE A.pid = P.pid AND P.edtid = E.edtid AND P.pid = '".$pid."'";
+		$q = "SELECT P.edtid, A.pname,E.dateperf,E.activitytype,E.enames,E.description,E.duration,E.outcome, E.cost, A.pid
+			  FROM EDTRecords E, PatientExaminations P JOIN Patients A
+			  ON A.pid = P.pid
+			  WHERE P.edtid = E.edtid AND A.pid = '".$pid."'";
 		
 		// Print out entries for current visit only if true
 		if( $option == 'current' ) {
@@ -106,7 +119,7 @@ class Treatment {
 		echo "<table>";
 		echo "<tr><th>Date</th><th>Activity</th><th>Physicians</th><th>Description</th><th>Duration</th><th>Outcome</th>";
 		foreach( $data as $record ) {
-			unset($record['cost'],$record['edtid']); // Don't display cost but we wanted cost for other uses from getEDTRecords().
+			unset($record['cost'],$record['edtid'],$record['pid']); // Don't display cost but we wanted cost for other uses from getEDTRecords().
 			echo "<tr".($moo % 2 ? " class='odd'" : "").">";
 			foreach( $record as $k=>$field ) {
 				echo "<td>".$this->special($k,$field)."</td>";

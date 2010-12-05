@@ -1,13 +1,28 @@
-<!-- Author: Rebecca Putinski 20271463 for CS348 -->
-
 <?php 
-include('common.php');
-include('treatment.class.php');
-include('admin.class.php');
-include('billing.class.php');
-include('header.php');
 
+/*	================================================
+
+	Author:	Rebecca Putinski
+	UWID:	20271463
+	Class:	CS348 Section 3
+	
+	This file:
+		The main index page. Displays most of the
+		user-facing output.
+		
+	================================================
+*/
+
+include('common.php');			// Forms and other common functions
+include('treatment.class.php');	// Treatment operations
+include('admin.class.php');		// Admin operations
+include('billing.class.php');	// Billing operations
+include('header.php');			// Header formatting/output
+
+// Decide which page to be on
 switch( key($_GET) ) { 
+
+	// Administrative actions
 	case 'admin': 
 		$items = array(
 				'addPatient'=>'Add',
@@ -37,6 +52,7 @@ switch( key($_GET) ) {
 		?>
 		<a name="updatePatient"></a>
 		<h2>Update a Patient</h2>
+		<p>Fields left blank will remain the same.</p>
 		<?php 
 			$a = new Admin;
 			$allPatients = $a->getAllPatients();
@@ -94,6 +110,7 @@ switch( key($_GET) ) {
 		
 		<a name="getPatientInfo"></a>
 		<h2>Get Patient Visits</h2>
+		<p>Display all visits from a patient.</p>
 		<?php
 			$a = new Admin;
 			$allPatients = $a->getAllPatients();
@@ -108,6 +125,7 @@ switch( key($_GET) ) {
 		?>
 		
 		<h2>Get Patients admitted/released on a Specific Date</h2>
+		<p>Display patients released/admitted on a specific date.</p>
 		<?php
 			$date = date('m/d/Y');
 			$form = array(
@@ -118,6 +136,7 @@ switch( key($_GET) ) {
 			buildForm( $form );
 		?>
 		<h2>Get Patients Admitted/Released By Physcian</h2>
+		<p>Display patients admitted/released by a specific physician.</p>
 		<?php
 			$a = new Admin;
 			$allPhysicians = $a->getAllPhysicians();
@@ -132,7 +151,11 @@ switch( key($_GET) ) {
 			buildForm( $form );
 		?>
 	
-	<?php break; case 'treatment': 
+		<?php 
+		break; 
+		
+		// Treatment actions
+		case 'treatment': 
 		$items = array(
 				'newEDT'=>"New EDT Record",
 				'getEDT'=>"Get EDT Records"
@@ -141,7 +164,7 @@ switch( key($_GET) ) {
 		?>
 		<a name="newEDT"></a>
 		<h2>Create an EDT Record for a Patient</h2>
-		<p>Select a patient from the dropdown box or enter their Patient ID number. The ID number (when non-zero) takes precedence if both fields are filled.</p>
+		<p>Select a patient from the dropdown box and fill in the other fields. All fields must be filled.</p>
 		<?php
 			$a = new Admin;
 			$currentPatients = $a->getCurrentPatients();
@@ -151,7 +174,7 @@ switch( key($_GET) ) {
 				'form_action'=>'newEDT',
 				'submit_text'=>'Create',
 				'_dropdown1'=>array('label'=>'Patient','name'=>'pid', $currentPatients),
-				'dateperf'=>'Date Performed (MM/DD/YYYY)',
+				'dateperf'=>array('label'=>'Date (MM/DD/YYYY)','value'=>date('m/d/Y')),
 				'_dropdown2'=>array('label'=>'Activity Type','name'=>'activitytype',$activitytypes),
 				'enames'=>'Physician Names (sep. by comma)',
 				'_textbox1'=>array('label'=>'Description','name'=>'description'),
@@ -164,7 +187,7 @@ switch( key($_GET) ) {
 		
 		<a name="getEDT"></a>
 		<h2>Retrieve EDT Records</h2>
-		<p>Supply a Patient name or ID and retrieve EDT records. Decide whether for all visits or just current/active visit.</p>
+		<p>Choose a patient and retrieve EDT records. Decide whether for all visits or just current/active visit.</p>
 		<?php
 			$a = new Admin;
 			$allPatients = $a->getAllPatients();
@@ -177,15 +200,19 @@ switch( key($_GET) ) {
 			buildForm( $form );
 		?>
 	
-	<?php break; case 'billing': 
+		<?php 
+		break; 
+		
+		// Billing actions
+		case 'billing': 
 		$items = array(
-				'addAccount'=>'Add',
-				'updateAccount'=>'Update',
-				'processEDTs'=>'Process EDTs',
-				'receivePayment'=>'Receive Payment',
-				'closeAccount'=>'Close account',
-				'getBill'=>'Get Bill'
-				);
+			'addAccount'=>'Add',
+			'updateAccount'=>'Update',
+			'processEDTs'=>'Process EDTs',
+			'receivePayment'=>'Receive Payment',
+			'closeAccount'=>'Close account',
+			'getBill'=>'Get Bill'
+			);
 		buildSubMenu($items); ?>
 		<a name='addAccount'></a>
 		<h2><?php echo $items['addAccount']; ?></h2>
@@ -206,6 +233,7 @@ switch( key($_GET) ) {
 		?>
 		<a name='updateAccount'></a>
 		<h2><?php echo $items['updateAccount']; ?></h2>
+		<p>Fields left blank will remain the same.</p>
 		<?php
 			$b = new Billing;
 			$acc = $b->getPatients( true ); // Patients with accounts only
@@ -237,7 +265,7 @@ switch( key($_GET) ) {
 		
 		<a name='closeAccount'></a>
 		<h2>Close an Account</h2>
-		<p>You will need to confirm for patients with outstanding balances. This action will remove all records for this patient in all modules.</p>
+		<p>You will need to confirm for patients with positive balances. This action will remove all records for this patient in all modules.</p>
 		<?php 
 			$b = new Billing;
 			$acc = $b->getPatients( true ); // Patients with accounts only
@@ -252,6 +280,7 @@ switch( key($_GET) ) {
 		
 		<a name='receivePayment'></a>
 		<h2><?php echo $items['receivePayment']; ?></h2>
+		<p>The payment received will be added to the negative balance on the patient's account.</p>
 		<?php 
 			$b = new Billing;
 			$patients = $b->getPatients(true);
@@ -267,6 +296,7 @@ switch( key($_GET) ) {
 		
 		<a name='getBill'></a>
 		<h2><?php echo $items['getBill']; ?></h2>
+		<p>View the current bill for the patient.</p>
 		<?php 
 			$b = new Billing;
 			$patients = $b->getPatients(true);
@@ -280,21 +310,28 @@ switch( key($_GET) ) {
 		?>		
 		
 	
-	<?php break; default: 
-		$items = array(
-				'readme'=>"Read Me",
-				'assumptions'=>"Assumptions",
-				'tests'=>"Run Tests"
-				);
-		buildSubMenu( $items );
-	
-	?>
+		<?php 
+		break; 
+		
+		// Default index page
+		default: 
+			$items = array(
+					'readme'=>"Read Me",
+					'tests'=>"Run Tests"
+					);
+			buildSubMenu( $items );
+		?>
+		<h2>Hello!</h2>
+		<p>Welcome to the hospital management system project!</p>
 		<h2>Read Me</h2>
+		<p>You can create the tables required with the createTables.sql file manually in DB2 Express C. This is also the updated Db2 DDL file for this part of the project.</p>
 		<p>To use the functions of the hospital management system, choose an option from the above menu. Then, navigate to an appropriate sub-action.</p>
+		<p>To insert some physicians into the database to use some functionality, click <a href='process.php?insertEmployees'>here</a>.</p>
 		<p>You can edit the database connection credentials in config.php.</p>
-		<h2>Assumptions</h2>
-		<p>DB: cs348, Username: cs348, password cs348.</p>
+		
+		<a name='tests'></a>
 		<h2>Perform Tests</h2>
+		<p>These test the basic functionality of the system's functions.</p>
 		<?php include('tests.php'); ?>
 
 <?php 

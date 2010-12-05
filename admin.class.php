@@ -1,8 +1,18 @@
 <?php
 
-// Admin class
-// Patient administration
+/*	================================================
 
+	Author:	Rebecca Putinski
+	UWID:	20271463
+	Class:	CS348 Section 3
+	
+	This file:
+		API for the administration actions with
+		output intended for use with header.php/
+		footer.php.
+		
+	================================================
+*/
 
 require_once('database.class.php');
 
@@ -70,8 +80,8 @@ class Admin {
 					break;
 				case 'emerg_phone':
 					if( !$UDTMagic[1] ) {
-						$keys[] = 'EmergContact_t..ephone';
-						$values[] = "EmergContact_t..ephone('".$v."')";
+						$keys[] = 'emergcontact';
+						$values[] = "EmergContact_t() ..ephone('".$v."')";
 						$UDTMagic[1] = true;
 					} else {
 						$values[] = " ..ephone('".$v."')";
@@ -92,7 +102,6 @@ class Admin {
 			if( !array_key_exists('op',$where) ) $where['op'] = '=';
 			$q .= " WHERE ".$where['field']." ".$where['op']." '".$where['value']."'";
 		}
-echo $q;exit;
 		return (!$check || $this->dbh->directInsert($q));
 	}
 	
@@ -141,7 +150,7 @@ echo $q;exit;
 	}
 	
 	public function updatePatient( $data ) {
-		if( !$this->isPatient($data['pid']) || ($data['dob'] && !verifyDate($data['dob'])) ) 
+		if( !$this->isPatient($data['pid']) || (isset($data['dob']) && !verifyDate($data['dob'])) ) 
 			return false;
 		$where = array('field'=>'pid','value'=>$data['pid']);
 		unset($data['pid']); // remove pid

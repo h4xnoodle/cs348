@@ -4,19 +4,20 @@ Install ZEND CE edition
 enable pdo_ibm ext
 new PDO("ibm:DRIVER={IBM DB2 ODBC DRIVER};DATABASE=<DB>;HOSTNAME=localhost;PORT=50000;PROTOCOL=TCPIP;", <USER>, <PASS>);
 
-Need new table(s) for billing shit
 
 Design:
 
-- Restrict new EDT record to physicians, with dropdown.
-- Change edtrecords DURATION to DECIMAL
-- Changed CheckInOuts to allow two physicians, and another ID, and primary key
+- Restrict new EDT record to physicians, with dropdown. NO-allow manual entry, but checks
 - Must be patient before billing account - rm duplicate entering of info. Automagically filled in from patient file
-	- allowed blank insurance
-- added "ON DELETE CASCADE" to all foreign keys
-- could create indices
+
+- could create indices on: employees, jobs, possibly patients (access >>> insert/delete).
 - preqs: add physicians
+
+DDL CHANGES
+- Changed edtrecords DURATION to DECIMAL
+- Changed CheckInOuts to allow two physicians, and another ID, and primary key
 - added transforms
+- added "ON DELETE CASCADE" to all foreign keys
 
 http://www.zend.com/en/products/server-ce/index
 
@@ -24,23 +25,7 @@ ETC:
 Menus built
 form builder
 
-
-EGs
-INSERT INTO Employees(ename,sin,address) values('Olivia',5152,'hello world');
-INSERT INTO Jobs(jname,jtype) values('OB','C');
-INSERT INTO EmployeeJobs(eid,jid) VALUES(1,1);
-
-
 TO DO
-
-
-
-
-
+tests
 Diagram
 design doc
-test cases
-
-Sat
-Review it
-CS343

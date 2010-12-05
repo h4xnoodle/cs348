@@ -1,7 +1,18 @@
 <?php
 
-// Billing class
-// Allows creation, update, etc of billing accounts of patients
+/*	================================================
+
+	Author:	Rebecca Putinski
+	UWID:	20271463
+	Class:	CS348 Section 3
+	
+	This file:
+		API for billing actions. 
+		Billing accounts for patients, billing
+		specialists manage accounts.
+		
+	================================================
+*/
 
 require_once('database.class.php');
 include('admin.class.php');
@@ -66,7 +77,7 @@ class Billing {
 	
 	public function processEDT( $record ) {
 		// Add EDT record's cost to balance on billing account
-		$q = "SELECT P.pid,E.cost FROM EDTRecords E, PatientExaminations P WHERE E.edtid = ".$record;
+		$q = "SELECT P.pid,E.cost FROM EDTRecords E, PatientExaminations P WHERE P.edtid = ".$record;
 		$temp = $this->dbh->query($q);
 		if( !$temp ) return false;
 		$where = array('field'=>'edtid','value'=>$record);
@@ -89,7 +100,7 @@ class Billing {
 	// Data query
 	public function getBill( $pid ) {
 		$q = "SELECT B.pid, P.dob, P.address, P.contact, P.pname, B.balance, B.insname, B.insacct, B.insaddress
-			 FROM Patients P, BillingAccounts B WHERE P.pid = ".$pid;
+			 FROM BillingAccounts B JOIN Patients P ON P.pid = B.pid WHERE P.pid = ".$pid;
 		$result = $this->dbh->query($q);
 		if( $result ) {
 			$result = $result[0];
@@ -110,8 +121,9 @@ class Billing {
 		echo "<p><b>ID / Name</b>: ".$bill['pid']." / ".$bill['pname']."</p>";
 		echo "<p><b>D.O.B.</b>: ".$bill['dob']."</p>";
 		echo "<p><b>Address:</b>: ".$bill['address']."</p>";
+		$contact = array(0=>'',1=>'');
 		$contact = explode(',',$bill['contact']);
-		echo ($contact ? "<p><b>Contact Info</b>: Phone: ".$contact[0]." Email: ".$contact[1]."</p>" : "");
+		echo "<p><b>Contact Info</b>: Phone: ".(isset($contact[0]) ? $contact[0] : "")." Email: ".(isset($contact[1]) ? $contact[1] : "")."</p>";
 		if( $bill['insname'] ) echo "<p><b>Insurance Provider</b>: ".$bill['insname']."</p>";
 		if( $bill['insacct'] ) echo "<p><b>Insurance Account#</b>: ".$bill['insacct']."</p>";
 		if( $bill['insaddress'] ) echo "<p><b>Insurance Provider Address</b>: ".$bill['insaddress']."</p>";
@@ -121,6 +133,7 @@ class Billing {
 	public function displayUnprocessedEDTs( $edts ) {
 		$a = new Admin;
 		$activities = $a->getActivityTypes();
+		$patients = $a->getAllPatients();
 		echo "<h2>Process EDT Records for ".($edts ? $edts[0]['pname'] : "N/A")."</h2>";
 		echo "<p>Click the 'Yes' beside each entry to process individually or click the button below to process all shown.</p>";
 		if( !$edts ) {	
@@ -130,6 +143,7 @@ class Billing {
 		echo "<table><tr>";
 		echo "<th>Process?</th><th>Name</th><th>Date Performed</th><th>Action</th><th>Physicians</th><th>Cost</th>";
 		foreach($edts as $e) {
+			unset($e['pid']);
 			echo "<tr>";
 			foreach( $e as $k=>$d ) {
 				if( $k == 'activitytype' ) {
@@ -148,6 +162,7 @@ class Billing {
 		$form = array(
 				'form_action'=>'processAllEDTs',
 				'submit_text'=>'Process All Records',
+				'_hidden1'=>array('name'=>'pid','value'=>array_search($edts[0]['pname'],$patients))
 				);
 		buildForm($form);
 	}

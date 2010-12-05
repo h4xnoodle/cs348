@@ -1,11 +1,25 @@
 <?php
+
+/*	================================================
+
+	Author:	Rebecca Putinski
+	UWID:	20271463
+	Class:	CS348 Section 3
+	
+	This file:
+		Database API. Provides access to the database
+		for other classes.
+		
+	================================================
+*/
+
 require("config.php");
 
-// Access to the Database (API)
 class Database {
 
 	private $handle;
 	
+	// Form connection -- when this instance is destructed, the PDO (connection) object is destructed.
 	function __construct() {
 		try {
 			$this->handle = new PDO("ibm:DRIVER={IBM DB2 ODBC DRIVER};DATABASE=".DATABASE_DBNAME . 
@@ -36,13 +50,14 @@ class Database {
 		return $results;
 	}
 	
-	// Really only for UDTInsert/Update in Admin
+	// Really only for UDTInsert/Update in Admin since UDTs are a pain in the ass
 	public function directInsert( $query ) {
 		return !($this->handle->exec( $query ) === false);
 	}
 	
 	// Build an insert statement
 	public function insert( $table,$data,$where=false ) {
+		$prepared = array();
 		$q = "INSERT INTO ".$table."(";
 		$q .= key($data);
 		next($data);
@@ -50,29 +65,20 @@ class Database {
 			if($v != '')
 				$q .= ",".$k;
 		}
-		$q .= ") VALUES(?";
+		$q .= ") VALUES(";
 		reset($data);
+		$q .= "'".str_ireplace("'","''",current($data))."',"; // DB2 sucks at escaping.
 		next($data);
 		while( list($k,$v) = each($data)) {
-			if($v != '') $q .= ",?";
+			if($v != '') $q .= "'".str_ireplace("'","''",$v)."',";
 		}
+		$q = substr($q,0,-1);
 		$q .= ")";
-		reset($data);
-		$prepared[] = current($data);
-		next($data);
-		while( list($k,$v) = each($data) ) {
-			if($v != '')
-				$prepared[] = $v;
-		}
-		
 		if( $where ) {
 			if ( !array_key_exists('op',$where) ) $where['op'] = "=";
 			$q .= " WHERE ".$where['field']." ".$where['op']." \"".$where['value']."\"";
 		}
-		echo "<pre>".$q."</pre>";
-		$stmt = $this->handle->prepare($q);
-		echo $q; print_r($prepared); 
-		return !($stmt->execute($prepared) === false);
+		return $this->handle->exec($q);
 	}
 	
 	// Build update statement
@@ -100,5 +106,6 @@ class Database {
 		$q .= " LIMIT ".$limit;
 		return ($this->handle->exec($q) !== false);
 	}
+			
 }
 ?>
